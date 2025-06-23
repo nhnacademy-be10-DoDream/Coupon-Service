@@ -12,4 +12,5 @@ public class IssueCouponRequest {
     private Long userId;
     @NotNull
     private Long couponId;
+
 }

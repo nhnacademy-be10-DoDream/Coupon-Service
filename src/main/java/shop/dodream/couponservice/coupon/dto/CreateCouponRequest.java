@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import shop.dodream.couponservice.coupon.entity.Coupon;
+import shop.dodream.couponservice.policy.entity.CouponPolicy;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,9 +15,15 @@ public class CreateCouponRequest {
     @NotNull
     private Long policyId;
 
-    @NotNull
     private Long bookId;
 
-    @NotNull
     private Long categoryId;
+
+    public Coupon toEntity(CouponPolicy policy) {
+        return Coupon.builder()
+                .couponPolicy(policy)
+                .bookId(bookId)
+                .categoryId(categoryId)
+                .build();
+    }
 }

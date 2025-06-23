@@ -1,11 +1,19 @@
 package shop.dodream.couponservice.usercoupon.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 
 import java.time.ZonedDateTime;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class UserCoupon {
 
     @Id

@@ -1,37 +1,46 @@
 package shop.dodream.couponservice.policy.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.common.DiscountType;
+import shop.dodream.couponservice.policy.entity.CouponPolicy;
 import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Builder
 public class CouponPolicyResponse {
 
-    @NotNull
     private Long id;
 
-    @NotBlank
     private String name;
 
-    @NotNull
     private DiscountType discountType;
 
-    @NotNull
     private Long discountValue;
 
     private Long minPurchaseAmount;
 
     private Long maxDiscountAmount;
 
-    @NotNull
     private ZonedDateTime startDate;
 
-    @NotNull
     private ZonedDateTime endDate;
+
+    public static CouponPolicyResponse from(CouponPolicy couponPolicy) {
+        return CouponPolicyResponse.builder()
+                .id(couponPolicy.getPolicyId())
+                .name(couponPolicy.getName())
+                .discountType(couponPolicy.getDiscountType())
+                .discountValue(couponPolicy.getDiscountValue())
+                .minPurchaseAmount(couponPolicy.getMinPurchaseAmount())
+                .maxDiscountAmount(couponPolicy.getMaxDiscountAmount())
+                .startDate(couponPolicy.getStartDate())
+                .endDate(couponPolicy.getEndDate())
+                .build();
+
+    }
 }

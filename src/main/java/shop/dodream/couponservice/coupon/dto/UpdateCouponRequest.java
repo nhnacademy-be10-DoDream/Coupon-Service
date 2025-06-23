@@ -10,8 +10,8 @@ import lombok.*;
 public class UpdateCouponRequest {
     @NotNull
     private Long policyId;
-    @NotNull
+
     private Long bookId;
-    @NotNull
+
     private Long categoryId;
 }
