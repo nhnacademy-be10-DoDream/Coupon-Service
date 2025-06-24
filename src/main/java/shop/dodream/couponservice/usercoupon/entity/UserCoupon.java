@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.coupon.entity.Coupon;
+import shop.dodream.couponservice.exception.AlreadyUsedCouponException;
 
 import java.time.ZonedDateTime;
 
@@ -31,4 +32,11 @@ public class UserCoupon {
     private ZonedDateTime issuedAt;
 
     private ZonedDateTime usedAt;
+
+    public void use() {
+        if (this.usedAt != null) {
+            throw new AlreadyUsedCouponException(this.userCouponId);
+        }
+        this.usedAt = ZonedDateTime.now();
+    }
 }

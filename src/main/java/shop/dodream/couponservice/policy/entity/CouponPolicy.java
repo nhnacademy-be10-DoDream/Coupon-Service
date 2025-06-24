@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.common.DiscountType;
-import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.policy.dto.UpdateCouponPolicyRequest;
 
 import java.time.ZonedDateTime;
