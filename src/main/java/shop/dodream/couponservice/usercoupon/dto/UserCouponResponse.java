@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 public class UserCouponResponse {
     private final Long id;
-    private final Long userId;
+    private final String userId;
     private final CouponResponse coupon;
     private final ZonedDateTime issuedAt;
     private final ZonedDateTime usedAt;

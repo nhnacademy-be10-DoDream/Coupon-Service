@@ -5,5 +5,5 @@ import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import java.util.List;
 
 public interface AvailableCouponRepository {
-    List<AvailableCouponResponse> findAllAvailableByUserId(Long userId);
+    List<AvailableCouponResponse> findAllAvailableByUserId(String userId);
 }

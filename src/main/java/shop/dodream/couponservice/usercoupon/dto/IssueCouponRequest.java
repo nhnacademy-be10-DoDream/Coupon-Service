@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class IssueCouponRequest {
     @NotNull
-    private Long userId;
+    private String userId;
     @NotNull
     private Long couponId;
 

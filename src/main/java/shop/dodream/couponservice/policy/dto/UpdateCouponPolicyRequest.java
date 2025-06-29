@@ -32,14 +32,4 @@ public class UpdateCouponPolicyRequest {
     @NotNull
     private Long maxDiscountAmount;
 
-    public CouponPolicy toEntity() {
-        return CouponPolicy.builder()
-                .name(name)
-                .discountType(discountType)
-                .discountValue(discountValue)
-                .minPurchaseAmount(minPurchaseAmount)
-                .maxDiscountAmount(maxDiscountAmount)
-                .build();
-    }
-
 }
