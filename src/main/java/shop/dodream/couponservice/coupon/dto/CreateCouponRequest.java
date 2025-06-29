@@ -26,4 +26,8 @@ public class CreateCouponRequest {
                 .categoryId(categoryId)
                 .build();
     }
+
+    public boolean isGlobal() {
+        return bookId == null && categoryId == null;
+    }
 }

@@ -34,12 +34,6 @@ public class CreateCouponPolicyRequest {
     @NotNull
     private Long maxDiscountAmount;
 
-    @NotNull
-    private ZonedDateTime startDate;
-
-    @NotNull
-    private ZonedDateTime endDate;
-
     public CouponPolicy toEntity() {
         return CouponPolicy.builder()
                 .name(name)
@@ -47,8 +41,6 @@ public class CreateCouponPolicyRequest {
                 .discountValue(discountValue)
                 .minPurchaseAmount(minPurchaseAmount)
                 .maxDiscountAmount(maxDiscountAmount)
-                .startDate(startDate)
-                .endDate(endDate)
                 .build();
     }
 }

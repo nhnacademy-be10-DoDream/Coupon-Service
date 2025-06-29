@@ -21,8 +21,6 @@ public class CouponResponse {
     private Long discountValue;
     private Long minPurchaseAmount;
     private Long maxDiscountAmount;
-    private ZonedDateTime startDate;
-    private ZonedDateTime endDate;
     private Long bookId;
     private Long categoryId;
 
@@ -37,8 +35,6 @@ public class CouponResponse {
                 .discountValue(policy.getDiscountValue())
                 .minPurchaseAmount(policy.getMinPurchaseAmount())
                 .maxDiscountAmount(policy.getMaxDiscountAmount())
-                .startDate(policy.getStartDate())
-                .endDate(policy.getEndDate())
                 .bookId(coupon.getBookId())
                 .categoryId(coupon.getCategoryId())
                 .build();

@@ -38,11 +38,6 @@ public class CouponPolicy {
     @Min(0)
     private Long maxDiscountAmount;
 
-    @Column(nullable = false)
-    private ZonedDateTime startDate;
-
-    @Column(nullable = false)
-    private ZonedDateTime endDate;
 
     public void update(UpdateCouponPolicyRequest request) {
         this.name = request.getName();
@@ -50,7 +45,5 @@ public class CouponPolicy {
         this.discountValue = request.getDiscountValue();
         this.minPurchaseAmount = request.getMinPurchaseAmount();
         this.maxDiscountAmount = request.getMaxDiscountAmount();
-        this.startDate = request.getStartDate();
-        this.endDate = request.getEndDate();
     }
 }

@@ -33,6 +33,9 @@ public class UserCoupon {
 
     private ZonedDateTime usedAt;
 
+    @Column(nullable = false)
+    private ZonedDateTime expiredAt;
+
     public void use() {
         if (this.usedAt != null) {
             throw new AlreadyUsedCouponException(this.userCouponId);
