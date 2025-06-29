@@ -6,4 +6,5 @@ import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 
 public interface UserCouponRepository extends JpaRepository<UserCoupon, Long>, AvailableCouponRepository {
 
+
 }

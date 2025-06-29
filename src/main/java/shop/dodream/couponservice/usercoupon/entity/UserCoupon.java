@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.exception.AlreadyUsedCouponException;
 
+
 import java.time.ZonedDateTime;
 
 @Entity
@@ -42,4 +43,5 @@ public class UserCoupon {
         }
         this.usedAt = ZonedDateTime.now();
     }
+
 }
