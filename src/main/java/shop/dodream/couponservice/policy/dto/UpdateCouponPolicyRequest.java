@@ -40,7 +40,6 @@ public class UpdateCouponPolicyRequest {
     @NotNull
     private ExpiredStrategy expiredStrategy;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime fixedDate;
 
     @Min(0)
