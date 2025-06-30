@@ -1,5 +1,6 @@
 package shop.dodream.couponservice.usercoupon.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -8,8 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IssueCouponRequest {
-    @NotNull
-    private Long userId;
+    @NotBlank
+    private String userId;
+
     @NotNull
     private Long couponId;
 

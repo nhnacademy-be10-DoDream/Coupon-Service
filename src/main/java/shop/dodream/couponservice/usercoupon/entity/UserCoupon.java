@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.exception.AlreadyUsedCouponException;
-
-
 import java.time.ZonedDateTime;
 
 @Entity
@@ -23,7 +21,8 @@ public class UserCoupon {
     private Long userCouponId;
 
     @Column(nullable = false)
-    private Long userId;
+    private String userId;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id", nullable = false)

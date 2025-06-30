@@ -39,7 +39,8 @@ public class UserCouponService {
 
     // 사용자 마이페이지 사용가능한 전체 쿠폰 조회 페이징?
     @Transactional(readOnly = true)
-    public List<AvailableCouponResponse> getAvailableCoupons(Long userId) {
+    public List<AvailableCouponResponse> getAvailableCoupons(String userId) {
+
         List<AvailableCouponResponse> availableCoupons = userCouponRepository.findAllAvailableByUserId(userId);
         return availableCoupons;
     }
@@ -48,7 +49,8 @@ public class UserCouponService {
 
 
 
-    public void useCoupon(Long userId, Long userCouponId) {
+    public void useCoupon(String userId, Long userCouponId) {
+
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
                 .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
