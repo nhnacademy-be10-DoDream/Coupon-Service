@@ -1,5 +1,6 @@
 package shop.dodream.couponservice.common.advice;
 
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,6 +56,16 @@ public class GlobalExceptionHandler {
         problem.setTitle("권한이 없습니다.");
         problem.setDetail(ex.getMessage());
         problem.setProperty("errorCode", "FORBIDDEN");
+        return problem;
+    }
+
+    //validation exception
+    @ExceptionHandler(ValidationException.class)
+    public ProblemDetail handleCustomValidation(ValidationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("비즈니스 유효성 검사 실패");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "VALIDATION_ERROR");
         return problem;
     }
 
