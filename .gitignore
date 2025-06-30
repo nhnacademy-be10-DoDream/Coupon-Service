@@ -34,3 +34,5 @@ build/
 
 
 src/main/resources/application-dev.yml
+src/main/resources/templates/test.html
+src/main/java/shop/dodream/couponservice/TestViewController.java

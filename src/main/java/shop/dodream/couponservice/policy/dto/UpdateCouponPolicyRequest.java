@@ -6,8 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import shop.dodream.couponservice.common.DiscountType;
+import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
+
+import java.time.Year;
+import java.time.ZonedDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,5 +36,17 @@ public class UpdateCouponPolicyRequest {
     @Min(0)
     @NotNull
     private Long maxDiscountAmount;
+
+    @NotNull
+    private ExpiredStrategy expiredStrategy;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime fixedDate;
+
+    @Min(0)
+    private Long plusDay;
+
+
+
 
 }

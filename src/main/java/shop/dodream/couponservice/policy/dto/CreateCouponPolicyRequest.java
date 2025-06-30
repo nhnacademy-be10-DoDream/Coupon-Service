@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.common.DiscountType;
+import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
 
 import java.time.ZonedDateTime;
@@ -34,6 +35,14 @@ public class CreateCouponPolicyRequest {
     @NotNull
     private Long maxDiscountAmount;
 
+    @NotNull
+    private ExpiredStrategy expiredStrategy;
+
+    private ZonedDateTime fixedDate;
+
+    @Min(0)
+    private Long plusDay;
+
     public CouponPolicy toEntity() {
         return CouponPolicy.builder()
                 .name(name)
@@ -41,6 +50,9 @@ public class CreateCouponPolicyRequest {
                 .discountValue(discountValue)
                 .minPurchaseAmount(minPurchaseAmount)
                 .maxDiscountAmount(maxDiscountAmount)
+                .expiredStrategy(expiredStrategy)
+                .fixedDate(fixedDate)
+                .plusDay(plusDay)
                 .build();
     }
 }
