@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.dodream.couponservice.common.DiscountType;
 import shop.dodream.couponservice.exception.CouponPolicyNotFoundException;
 import shop.dodream.couponservice.exception.DuplicatePolicyNameException;
 import shop.dodream.couponservice.policy.dto.CouponPolicyResponse;
@@ -26,19 +27,7 @@ public class PolicyService {
             throw new DuplicatePolicyNameException(request.getName());
         }
 
-        Long discount = request.getDiscountValue();
-        switch (request.getDiscountType()) {
-            case PERCENTAGE -> {
-                if (discount < 0 || discount > 100) {
-                    throw new ValidationException("percentage discount must be between 0 and 100");
-                }
-            }
-            case FLAT -> {
-                if (discount <= 100) {
-                    throw new ValidationException("flat discount must be greater than 100");
-                }
-            }
-        }
+        validateDiscountValue(request.getDiscountType(), request.getDiscountValue());
         CouponPolicy couponPolicy = request.toEntity();
         couponPolicyRepository.save(couponPolicy);
     }
@@ -53,11 +42,13 @@ public class PolicyService {
 
     // 쿠폰 정책 업데이트
     public void update(Long id, UpdateCouponPolicyRequest request) {
+        validateDiscountValue(request.getDiscountType(), request.getDiscountValue());
         CouponPolicy couponPolicy = couponPolicyRepository.findById(id)
                 .orElseThrow(() -> new CouponPolicyNotFoundException(id));
         couponPolicy.update(request);
         couponPolicyRepository.save(couponPolicy);
     }
+
 
     // id 로 단일 쿠폰 정책 조회
     @Transactional(readOnly = true)
@@ -73,6 +64,21 @@ public class PolicyService {
         return couponPolicyRepository.findAll().stream()
                 .map(CouponPolicyResponse::from)
                 .toList();
+    }
+
+    private void validateDiscountValue(DiscountType discountType, Long value) {
+        switch (discountType) {
+            case PERCENTAGE -> {
+                if (value < 0 || value > 100) {
+                    throw new ValidationException("percentage discount must be between 0 and 100");
+                }
+            }
+            case FLAT -> {
+                if (value <= 100) {
+                    throw new ValidationException("flat discount must be greater than 100");
+                }
+            }
+        }
     }
 
 }
