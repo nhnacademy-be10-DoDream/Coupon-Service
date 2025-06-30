@@ -28,20 +28,20 @@ public class PolicyController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/{policyId}")
-    public ResponseEntity<CouponPolicyResponse> getPolicy(@PathVariable Long policyId) {
+    @GetMapping("/{policy-id}")
+    public ResponseEntity<CouponPolicyResponse> getPolicy(@PathVariable("policy-id") Long policyId) {
         CouponPolicyResponse response = policyService.getById(policyId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{policyId}")
-    public ResponseEntity<Void> deletePolicy(@PathVariable Long policyId) {
+    @DeleteMapping("/{policy-id}")
+    public ResponseEntity<Void> deletePolicy(@PathVariable("policy-id") Long policyId) {
         policyService.delete(policyId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{policyId}")
-    public ResponseEntity<Void> updatePolicy(@PathVariable Long policyId, @RequestBody @Valid UpdateCouponPolicyRequest request) {
+    @PutMapping("/{policy-id}")
+    public ResponseEntity<Void> updatePolicy(@PathVariable("policy-id") Long policyId, @RequestBody @Valid UpdateCouponPolicyRequest request) {
         policyService.update(policyId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -51,8 +51,8 @@ public class PolicyController {
         return ResponseEntity.status(HttpStatus.OK).body(policyService.getAll());
     }
 
-    @GetMapping("/{policyId}/coupons")
-    public ResponseEntity<List<CouponResponse>> getCouponsByPolicy(@PathVariable Long policyId) {
+    @GetMapping("/{policy-id}/coupons")
+    public ResponseEntity<List<CouponResponse>> getCouponsByPolicy(@PathVariable("policy-id") Long policyId) {
         List<CouponResponse> response = couponService.getCouponsByPolicy(policyId);
         return ResponseEntity.ok(response);
     }

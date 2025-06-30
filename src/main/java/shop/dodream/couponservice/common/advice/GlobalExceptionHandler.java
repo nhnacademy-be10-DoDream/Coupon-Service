@@ -1,68 +1,85 @@
 package shop.dodream.couponservice.common.advice;
 
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import shop.dodream.couponservice.common.ErrorResponse;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import shop.dodream.couponservice.exception.*;
 
 import java.util.stream.Collectors;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Not Found 공통처리
-    @ExceptionHandler({CouponNotFoundException.class,
+    // Not Found
+    @ExceptionHandler({
+            CouponNotFoundException.class,
             CouponPolicyNotFoundException.class,
-            UserCouponNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleNotFoundException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Not Found", e.getMessage()));
+            UserCouponNotFoundException.class
+    })
+    public ProblemDetail handleNotFound(RuntimeException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problem.setTitle("리소스를 찾을 수 없습니다.");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "NOT_FOUND");
+        return problem;
     }
 
-    // Bad Request 곹옹처리
-    @ExceptionHandler({AlreadyUsedCouponException.class, DuplicatePolicyNameException.class})
-    public ResponseEntity<ErrorResponse> handleBadRequestException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Bad Request", e.getMessage()));
+    // Bad Request
+    @ExceptionHandler({
+            DuplicatePolicyNameException.class,
+            AlreadyUsedCouponException.class
+    })
+    public ProblemDetail handleBadRequest(RuntimeException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("잘못된 요청입니다.");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "BAD_REQUEST");
+        return problem;
     }
 
-    // 유저 쿠폰 권한 없음
-    @ExceptionHandler(UnauthorizedUserCouponAccessException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedCouponAccess(UnauthorizedUserCouponAccessException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse("UNAUTHORIZED_COUPON_ACCESS", ex.getMessage()));
-    }
-
-    // 인증 실패
+    //  인증 실패
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse("UNAUTHORIZED", ex.getMessage()));
+    public ProblemDetail handleUnauthorized(UnauthorizedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problem.setTitle("인증이 필요합니다.");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "UNAUTHORIZED");
+        return problem;
     }
 
-    // valid 검증 실패
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult()
+    // 권한 실패
+    @ExceptionHandler(UnauthorizedUserCouponAccessException.class)
+    public ProblemDetail handleForbidden(UnauthorizedUserCouponAccessException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problem.setTitle("권한이 없습니다.");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "FORBIDDEN");
+        return problem;
+    }
+
+    // 검증 실패
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("검증에 실패했습니다.");
+        String detail = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + " " + err.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("VALIDATION_ERROR", message));
+        problem.setDetail(detail);
+        problem.setProperty("errorCode", "VALIDATION_ERROR");
+        return problem;
     }
 
-    // 기타
+    // 그 외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        log.error("Unhandled exception", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "알 수 없는 오류가 발생했습니다."));
+    public ProblemDetail handleOther(Exception ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problem.setTitle("서버 내부 오류");
+        problem.setDetail("알 수 없는 오류가 발생했습니다.");
+        return problem;
     }
 }
 

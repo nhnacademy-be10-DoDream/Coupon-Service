@@ -22,14 +22,14 @@ public class CouponController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/{couponId}")
-    public ResponseEntity<CouponResponse> getCoupon(@PathVariable Long couponId) {
+    @GetMapping("/{coupon-id}")
+    public ResponseEntity<CouponResponse> getCoupon(@PathVariable("coupon-id") Long couponId) {
         CouponResponse response = couponService.getCoupon(couponId);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{couponId}")
-    public ResponseEntity<Void> deleteCoupon(@PathVariable Long couponId) {
+    @DeleteMapping("/{coupon-id}")
+    public ResponseEntity<Void> deleteCoupon(@PathVariable("coupon-id") Long couponId) {
         couponService.deleteCoupon(couponId);
         return ResponseEntity.noContent().build();
     }

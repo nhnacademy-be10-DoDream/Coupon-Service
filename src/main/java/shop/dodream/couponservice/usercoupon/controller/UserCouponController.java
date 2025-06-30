@@ -29,10 +29,10 @@ public class UserCouponController {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    @PutMapping("/me/coupons/{userCouponId}/use")
+    @PutMapping("/me/coupons/{user-coupon-id}/use")
     public ResponseEntity<Void> useCoupon(
             @CurrentUser String userId,
-            @PathVariable Long userCouponId
+            @PathVariable("user-coupon-id") Long userCouponId
     ) {
         userCouponService.useCoupon(userId, userCouponId);
         return ResponseEntity.noContent().build();
