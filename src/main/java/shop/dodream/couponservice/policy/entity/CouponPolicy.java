@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.common.DiscountType;
+import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.policy.dto.UpdateCouponPolicyRequest;
 
 import java.time.ZonedDateTime;
@@ -37,6 +38,13 @@ public class CouponPolicy {
 
     @Min(0)
     private Long maxDiscountAmount;
+
+    @Enumerated(EnumType.STRING)
+    private ExpiredStrategy expiredStrategy;
+
+    private ZonedDateTime fixedDate;
+
+    private Long plusDay;
 
 
     public void update(UpdateCouponPolicyRequest request) {

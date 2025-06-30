@@ -3,11 +3,14 @@ package shop.dodream.couponservice.usercoupon.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
 import shop.dodream.couponservice.exception.CouponNotFoundException;
+import shop.dodream.couponservice.exception.InvalidCouponPolicyException;
 import shop.dodream.couponservice.exception.UnauthorizedUserCouponAccessException;
 import shop.dodream.couponservice.exception.UserCouponNotFoundException;
+import shop.dodream.couponservice.policy.entity.CouponPolicy;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
@@ -28,10 +31,24 @@ public class UserCouponService {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
 
+        CouponPolicy policy = coupon.getCouponPolicy();
+
+        ZonedDateTime issuedAt = ZonedDateTime.now();
+        ZonedDateTime expiredAt;
+
+        if (policy.getExpiredStrategy() == ExpiredStrategy.FIXED) {
+            expiredAt = policy.getFixedDate();
+        } else if (policy.getExpiredStrategy() == ExpiredStrategy.PLUS) {
+            expiredAt = issuedAt.plusDays(policy.getPlusDay());
+        } else {
+            throw new InvalidCouponPolicyException("유효하지 않은 쿠폰 만료 정책입니다.");
+        }
+
         UserCoupon userCoupon = UserCoupon.builder()
                 .userId(request.getUserId())
                 .coupon(coupon)
                 .issuedAt(ZonedDateTime.now())
+                .expiredAt(expiredAt)
                 .build();
 
         userCouponRepository.save(userCoupon);
