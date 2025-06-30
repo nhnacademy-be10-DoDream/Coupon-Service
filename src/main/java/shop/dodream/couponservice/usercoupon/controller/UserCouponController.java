@@ -24,12 +24,12 @@ public class UserCouponController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/users/me/coupons/available")
+    @GetMapping("/me/coupons/available")
     public ResponseEntity<List<AvailableCouponResponse>> getAvailableCoupons(@CurrentUser String userId) {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    @PutMapping("/users/me/coupons/{userCouponId}/use")
+    @PutMapping("/me/coupons/{userCouponId}/use")
     public ResponseEntity<Void> useCoupon(
             @CurrentUser String userId,
             @PathVariable Long userCouponId
