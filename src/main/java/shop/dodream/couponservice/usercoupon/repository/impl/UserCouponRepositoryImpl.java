@@ -23,6 +23,7 @@ public class UserCouponRepositoryImpl extends QuerydslRepositorySupport implemen
 
     @Override
     public List<AvailableCouponResponse> findAllAvailableByUserId(String userId) {
+
         QUserCoupon uc = QUserCoupon.userCoupon;
         QCoupon c = QCoupon.coupon;
         QCouponPolicy cp = QCouponPolicy.couponPolicy;

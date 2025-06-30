@@ -17,6 +17,7 @@ public class UserCouponResponse {
     private final ZonedDateTime usedAt;
     private final ZonedDateTime expiredAt;
 
+
     public static UserCouponResponse from(UserCoupon userCoupon) {
         return UserCouponResponse.builder()
                 .id(userCoupon.getUserCouponId())

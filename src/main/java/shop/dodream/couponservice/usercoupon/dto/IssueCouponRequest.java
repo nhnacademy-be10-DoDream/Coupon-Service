@@ -10,6 +10,7 @@ import lombok.*;
 public class IssueCouponRequest {
     @NotNull
     private String userId;
+
     @NotNull
     private Long couponId;
 
