@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    // request body vaild
+    // 검증 실패
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    // 등등
+    // 그 외
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleOther(Exception ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
