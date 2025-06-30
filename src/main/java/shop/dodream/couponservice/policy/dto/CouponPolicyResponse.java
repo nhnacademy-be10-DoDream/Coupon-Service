@@ -26,10 +26,6 @@ public class CouponPolicyResponse {
 
     private Long maxDiscountAmount;
 
-    private ZonedDateTime startDate;
-
-    private ZonedDateTime endDate;
-
     public static CouponPolicyResponse from(CouponPolicy couponPolicy) {
         return CouponPolicyResponse.builder()
                 .id(couponPolicy.getPolicyId())
@@ -38,8 +34,6 @@ public class CouponPolicyResponse {
                 .discountValue(couponPolicy.getDiscountValue())
                 .minPurchaseAmount(couponPolicy.getMinPurchaseAmount())
                 .maxDiscountAmount(couponPolicy.getMaxDiscountAmount())
-                .startDate(couponPolicy.getStartDate())
-                .endDate(couponPolicy.getEndDate())
                 .build();
 
     }

@@ -8,12 +8,15 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class UserCouponResponse {
     private final Long id;
     private final Long userId;
     private final CouponResponse coupon;
     private final ZonedDateTime issuedAt;
     private final ZonedDateTime usedAt;
+    private final ZonedDateTime expiredAt;
+
 
     public static UserCouponResponse from(UserCoupon userCoupon) {
         return UserCouponResponse.builder()
@@ -22,7 +25,9 @@ public class UserCouponResponse {
                 .coupon(CouponResponse.from(userCoupon.getCoupon()))
                 .issuedAt(userCoupon.getIssuedAt())
                 .usedAt(userCoupon.getUsedAt())
+                .expiredAt(userCoupon.getExpiredAt())
                 .build();
     }
+
 }
 
