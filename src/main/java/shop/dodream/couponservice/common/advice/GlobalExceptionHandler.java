@@ -1,5 +1,6 @@
 package shop.dodream.couponservice.common.advice;
 
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,7 +59,17 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    // 검증 실패
+    //validation exception
+    @ExceptionHandler(ValidationException.class)
+    public ProblemDetail handleCustomValidation(ValidationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("비즈니스 유효성 검사 실패");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("errorCode", "VALIDATION_ERROR");
+        return problem;
+    }
+
+    // request body vaild
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -73,7 +84,7 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    // 그 외
+    // 등등
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleOther(Exception ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);

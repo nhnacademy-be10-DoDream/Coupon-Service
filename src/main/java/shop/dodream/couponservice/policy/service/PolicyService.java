@@ -1,5 +1,6 @@
 package shop.dodream.couponservice.policy.service;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,20 @@ public class PolicyService {
     public void create(CreateCouponPolicyRequest request) {
         if (couponPolicyRepository.existsByName(request.getName())) {
             throw new DuplicatePolicyNameException(request.getName());
+        }
+
+        Long discount = request.getDiscountValue();
+        switch (request.getDiscountType()) {
+            case PERCENTAGE -> {
+                if (discount < 0 || discount > 100) {
+                    throw new ValidationException("percentage discount must be between 0 and 100");
+                }
+            }
+            case FLAT -> {
+                if (discount <= 100) {
+                    throw new ValidationException("flat discount must be greater than 100");
+                }
+            }
         }
         CouponPolicy couponPolicy = request.toEntity();
         couponPolicyRepository.save(couponPolicy);
