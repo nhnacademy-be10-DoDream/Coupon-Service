@@ -22,10 +22,8 @@ public class Coupon {
     @JoinColumn(name = "policy_id", nullable = false)
     private CouponPolicy couponPolicy;
 
-    @Column(nullable = false)
     private Long bookId;
 
-    @Column(nullable = false)
     private Long categoryId;
 
 }

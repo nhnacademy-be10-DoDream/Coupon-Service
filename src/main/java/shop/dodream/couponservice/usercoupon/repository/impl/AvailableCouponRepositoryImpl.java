@@ -14,9 +14,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Transactional(readOnly = true)
-public class UserCouponRepositoryImpl extends QuerydslRepositorySupport implements AvailableCouponRepository {
+public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport implements AvailableCouponRepository {
 
-    public UserCouponRepositoryImpl() {
+    public AvailableCouponRepositoryImpl() {
         super(UserCoupon.class);
     }
 
