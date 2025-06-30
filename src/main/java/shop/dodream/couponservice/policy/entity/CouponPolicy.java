@@ -53,5 +53,8 @@ public class CouponPolicy {
         this.discountValue = request.getDiscountValue();
         this.minPurchaseAmount = request.getMinPurchaseAmount();
         this.maxDiscountAmount = request.getMaxDiscountAmount();
+        this.expiredStrategy = request.getExpiredStrategy();
+        this.fixedDate = request.getFixedDate();
+        this.plusDay = request.getPlusDay();
     }
 }
