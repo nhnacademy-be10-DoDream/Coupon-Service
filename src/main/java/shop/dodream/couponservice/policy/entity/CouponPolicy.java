@@ -12,6 +12,7 @@ import shop.dodream.couponservice.policy.dto.UpdateCouponPolicyRequest;
 
 import java.time.ZonedDateTime;
 
+
 @Entity
 @Builder
 @NoArgsConstructor

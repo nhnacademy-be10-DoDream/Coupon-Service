@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shop.dodream.couponservice.common.annotation.CurrentUser;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
+import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
 import shop.dodream.couponservice.usercoupon.service.UserCouponService;
 
@@ -36,6 +37,17 @@ public class UserCouponController {
     ) {
         userCouponService.useCoupon(userId, userCouponId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/coupons/book/{book-id}")
+    public ResponseEntity<List<BookAvailableCouponResponse>> getAvailableCouponsforBook(
+            @PathVariable("book-id") Long bookId,
+            @CurrentUser String userId,
+            @RequestParam Long bookPrice) {
+
+        List<BookAvailableCouponResponse> coupons = userCouponService.getBookAvailableCoupons(userId, bookId, bookPrice);
+
+        return ResponseEntity.ok(coupons);
     }
 
 

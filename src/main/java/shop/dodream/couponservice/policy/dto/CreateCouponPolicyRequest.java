@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import shop.dodream.couponservice.common.DiscountType;
 import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
-
 import java.time.ZonedDateTime;
 
 @AllArgsConstructor
