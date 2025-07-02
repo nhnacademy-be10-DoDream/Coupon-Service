@@ -67,7 +67,7 @@ public class UserCouponService {
         return availableCoupons;
     }
 
-    // TODO 상품 별 사용가능한 쿠폰 조회 만들어야함
+    // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
     public List<BookAvailableCouponResponse> getBookAvailableCoupons(String userId, Long bookId, Long bookPrice) {
         List<Long> categoryIds = getCategoryIdsByBook(bookId);
         List<BookAvailableCouponResponse> availableCoupons = userCouponRepository.findAvailableCouponsForBook(userId

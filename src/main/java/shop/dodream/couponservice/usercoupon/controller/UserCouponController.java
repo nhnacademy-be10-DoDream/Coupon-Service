@@ -25,12 +25,13 @@ public class UserCouponController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/me/coupons/available")
+    @GetMapping("/coupons/me/available")
     public ResponseEntity<List<AvailableCouponResponse>> getAvailableCoupons(@CurrentUser String userId) {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    @PutMapping("/me/coupons/{user-coupon-id}/use")
+    // 뭔가 잘못됐다 여러 쿠폰들을 한꺼번에 사용처리를 해야하지 않나?
+    @PutMapping("/coupons/me/{user-coupon-id}/use")
     public ResponseEntity<Void> useCoupon(
             @CurrentUser String userId,
             @PathVariable("user-coupon-id") Long userCouponId
