@@ -70,6 +70,7 @@ public class UserCouponService {
     }
 
     // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
+    @Transactional(readOnly = true)
     public List<BookAvailableCouponResponse> getBookAvailableCoupons(String userId, Long bookId, Long bookPrice) {
         List<Long> categoryIds = getCategoryIdsByBook(bookId);
         List<BookAvailableCouponResponse> availableCoupons = userCouponRepository.findAvailableCouponsForBook(userId
