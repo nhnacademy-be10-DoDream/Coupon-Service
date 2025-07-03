@@ -40,6 +40,15 @@ public class UserCouponController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/coupons/me/{coupon-id}/apply")
+    public ResponseEntity<Void> applyCoupon(
+            @CurrentUser String userId,
+            @PathVariable("coupon-id") Long userCouponId
+    ) {
+        userCouponService.applyCoupon(userId, userCouponId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/coupons/book/{book-id}")
     public ResponseEntity<List<BookAvailableCouponResponse>> getAvailableCouponsforBook(
             @PathVariable("book-id") Long bookId,

@@ -3,6 +3,7 @@ package shop.dodream.couponservice.usercoupon.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
@@ -54,6 +55,7 @@ public class UserCouponService {
                 .coupon(coupon)
                 .issuedAt(ZonedDateTime.now())
                 .expiredAt(expiredAt)
+                .status(CouponStatus.AVAILABLE)
                 .build();
 
         userCouponRepository.save(userCoupon);
@@ -98,8 +100,6 @@ public class UserCouponService {
     }
 
 
-
-
     public void useCoupon(String userId, Long userCouponId) {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
@@ -109,6 +109,15 @@ public class UserCouponService {
         }
 
         userCoupon.use();
+    }
+
+    public void applyCoupon(String userId, Long userCouponId) {
+        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
+        if (!userCoupon.getUserId().equals(userId)) {
+            throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
+        }
+        userCoupon.apply();
     }
 
     @Transactional(readOnly = true)
