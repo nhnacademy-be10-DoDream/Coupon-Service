@@ -9,6 +9,7 @@ import shop.dodream.couponservice.common.annotation.CurrentUser;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
+import shop.dodream.couponservice.usercoupon.dto.UseCouponsRequest;
 import shop.dodream.couponservice.usercoupon.service.UserCouponService;
 
 import java.util.List;
@@ -30,7 +31,6 @@ public class UserCouponController {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    // 뭔가 잘못됐다 여러 쿠폰들을 한꺼번에 사용처리를 해야하지 않나?
     @PutMapping("/coupons/me/{user-coupon-id}/use")
     public ResponseEntity<Void> useCoupon(
             @CurrentUser String userId,
@@ -40,12 +40,21 @@ public class UserCouponController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/coupons/me/{coupon-id}/apply")
+    @PutMapping("/coupons/me/{user-coupon-id}/apply")
     public ResponseEntity<Void> applyCoupon(
             @CurrentUser String userId,
-            @PathVariable("coupon-id") Long userCouponId
+            @PathVariable("user-coupon-id") Long userCouponId
     ) {
         userCouponService.applyCoupon(userId, userCouponId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/coupons/me/use-multiple")
+    public ResponseEntity<Void> useMultipleCoupons(
+            @CurrentUser String userId,
+            @RequestBody @Valid UseCouponsRequest request
+    ) {
+        userCouponService.useCoupons(userId, request.getUserCouponIds());
         return ResponseEntity.noContent().build();
     }
 

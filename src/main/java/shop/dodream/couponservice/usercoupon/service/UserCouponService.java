@@ -22,6 +22,7 @@ import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -70,6 +71,7 @@ public class UserCouponService {
     }
 
     // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
+    @Transactional(readOnly = true)
     public List<BookAvailableCouponResponse> getBookAvailableCoupons(String userId, Long bookId, Long bookPrice) {
         List<Long> categoryIds = getCategoryIdsByBook(bookId);
         List<BookAvailableCouponResponse> availableCoupons = userCouponRepository.findAvailableCouponsForBook(userId
@@ -118,6 +120,21 @@ public class UserCouponService {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
         userCoupon.apply();
+    }
+
+    public void useCoupons(String userId, List<Long> userCouponIds) {
+        List<UserCoupon> userCoupons = userCouponRepository.findAllById(userCouponIds);
+
+        if (userCoupons.size() != userCouponIds.size()) {
+            throw new UserCouponNotFoundException(userCouponIds);
+        }
+
+        for (UserCoupon userCoupon : userCoupons) {
+            if (!userCoupon.getUserId().equals(userId)) {
+                throw new UnauthorizedUserCouponAccessException(userId, userCoupon.getUserCouponId());
+            }
+            userCoupon.use();
+        }
     }
 
     @Transactional(readOnly = true)
