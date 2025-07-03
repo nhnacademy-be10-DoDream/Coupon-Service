@@ -22,6 +22,7 @@ import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -104,7 +105,7 @@ public class UserCouponService {
     public void useCoupon(String userId, Long userCouponId) {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException("coupon not found: "+ userCouponId));
+                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
@@ -114,7 +115,7 @@ public class UserCouponService {
 
     public void applyCoupon(String userId, Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException("coupon not found: "+ userCouponId));
+                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
@@ -125,7 +126,7 @@ public class UserCouponService {
         List<UserCoupon> userCoupons = userCouponRepository.findAllById(userCouponIds);
 
         if (userCoupons.size() != userCouponIds.size()) {
-            throw new UserCouponNotFoundException("some coupons not found");
+            throw new UserCouponNotFoundException(userCouponIds);
         }
 
         for (UserCoupon userCoupon : userCoupons) {
