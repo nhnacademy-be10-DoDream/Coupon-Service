@@ -103,7 +103,7 @@ public class UserCouponService {
     public void useCoupon(String userId, Long userCouponId) {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
+                .orElseThrow(() -> new UserCouponNotFoundException("coupon not found: "+ userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
@@ -113,11 +113,26 @@ public class UserCouponService {
 
     public void applyCoupon(String userId, Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
+                .orElseThrow(() -> new UserCouponNotFoundException("coupon not found: "+ userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
         userCoupon.apply();
+    }
+
+    public void useCoupons(String userId, List<Long> userCouponIds) {
+        List<UserCoupon> userCoupons = userCouponRepository.findAllById(userCouponIds);
+
+        if (userCoupons.size() != userCouponIds.size()) {
+            throw new UserCouponNotFoundException("some coupons not found");
+        }
+
+        for (UserCoupon userCoupon : userCoupons) {
+            if (!userCoupon.getUserId().equals(userId)) {
+                throw new UnauthorizedUserCouponAccessException(userId, userCoupon.getUserCouponId());
+            }
+            userCoupon.use();
+        }
     }
 
     @Transactional(readOnly = true)
