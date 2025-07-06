@@ -2,6 +2,7 @@ package shop.dodream.couponservice.usercoupon.repository.impl;
 
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.transaction.annotation.Transactional;
+import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.coupon.entity.QCoupon;
 import shop.dodream.couponservice.policy.entity.QCouponPolicy;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
@@ -62,6 +63,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                         uc.userId.eq(userId),
                         uc.usedAt.isNull(),
                         uc.expiredAt.after(ZonedDateTime.now()),
+                        uc.status.ne(CouponStatus.APPLIED),
                         cp.minPurchaseAmount.loe(bookPrice),
                         c.bookId.eq(bookId)
                                 .or(c.categoryId.in(categoryIds))
