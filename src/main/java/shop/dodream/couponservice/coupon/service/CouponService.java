@@ -14,6 +14,9 @@ import shop.dodream.couponservice.policy.repository.CouponPolicyRepository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -58,6 +61,13 @@ public class CouponService {
         return couponRepository.findById(couponId)
                 .map(CouponResponse::from)
                 .orElseThrow(() -> new CouponNotFoundException(couponId));
+    }
+
+    // 모든 쿠폰 조회
+    @Transactional(readOnly = true)
+    public Page<CouponResponse> getAllCoupons(Pageable pageable) {
+        return couponRepository.findAll(pageable)
+                .map(CouponResponse::from);
     }
 }
 
