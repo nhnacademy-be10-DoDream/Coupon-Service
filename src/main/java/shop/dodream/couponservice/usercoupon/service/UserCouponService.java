@@ -17,6 +17,7 @@ import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.CategoryTreeResponse;
 import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
+import shop.dodream.couponservice.usercoupon.dto.IssueCouponToUsersRequest;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
@@ -33,7 +34,7 @@ public class UserCouponService {
     private final CouponRepository couponRepository;
     private final BookServiceClient bookServiceClient;
 
-
+    // 유저에 쿠폰 발급
     public void issuedCoupon(IssueCouponRequest request) {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
@@ -60,6 +61,36 @@ public class UserCouponService {
                 .build();
 
         userCouponRepository.save(userCoupon);
+    }
+
+    public void issueCouponsToUsers(IssueCouponToUsersRequest request) {
+        Coupon coupon = couponRepository.findById(request.getCouponId())
+                .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
+
+        CouponPolicy policy = coupon.getCouponPolicy();
+
+        ZonedDateTime issuedAt = ZonedDateTime.now();
+        ZonedDateTime expiredAt;
+
+        if (policy.getExpiredStrategy() == ExpiredStrategy.FIXED) {
+            expiredAt = policy.getFixedDate();
+        } else if (policy.getExpiredStrategy() == ExpiredStrategy.PLUS) {
+            expiredAt = issuedAt.plusDays(policy.getPlusDay());
+        } else {
+            throw new InvalidCouponPolicyException("유효하지 않은 쿠폰 만료 정책입니다.");
+        }
+
+        List<UserCoupon> userCoupons = request.getUserIds().stream()
+                .map(userId -> UserCoupon.builder()
+                        .userId(userId)
+                        .coupon(coupon)
+                        .issuedAt(issuedAt)
+                        .expiredAt(expiredAt)
+                        .status(CouponStatus.AVAILABLE)
+                        .build())
+                .toList();
+
+        userCouponRepository.saveAll(userCoupons);
     }
 
     // 사용자 마이페이지 사용가능한 전체 쿠폰 조회 페이징?
