@@ -9,6 +9,9 @@ import shop.dodream.couponservice.coupon.dto.CouponResponse;
 import shop.dodream.couponservice.coupon.dto.CreateCouponRequest;
 import shop.dodream.couponservice.coupon.service.CouponService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/coupons")
@@ -25,6 +28,12 @@ public class CouponController {
     @GetMapping("/{coupon-id}")
     public ResponseEntity<CouponResponse> getCoupon(@PathVariable("coupon-id") Long couponId) {
         CouponResponse response = couponService.getCoupon(couponId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<CouponResponse>> getAllCoupons(Pageable pageable) {
+        Page<CouponResponse> response = couponService.getAllCoupons(pageable);
         return ResponseEntity.ok(response);
     }
 
