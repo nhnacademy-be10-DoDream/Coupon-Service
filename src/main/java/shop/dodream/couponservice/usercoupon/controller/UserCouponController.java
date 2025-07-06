@@ -9,6 +9,7 @@ import shop.dodream.couponservice.common.annotation.CurrentUser;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
+import shop.dodream.couponservice.usercoupon.dto.IssueCouponToUsersRequest;
 import shop.dodream.couponservice.usercoupon.dto.UseCouponsRequest;
 import shop.dodream.couponservice.usercoupon.service.UserCouponService;
 
@@ -23,6 +24,12 @@ public class UserCouponController {
     @PostMapping("/admin/user-coupons")
     public ResponseEntity<Void> issueCoupon(@RequestBody @Valid IssueCouponRequest request) {
         userCouponService.issuedCoupon(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/admin/user-coupons/issue_multiple")
+    public ResponseEntity<Void> issueCouponsToUsers(@RequestBody @Valid IssueCouponToUsersRequest request) {
+        userCouponService.issueCouponsToUsers(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
