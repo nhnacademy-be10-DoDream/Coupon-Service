@@ -40,6 +40,7 @@ public class UserCoupon {
     private ZonedDateTime expiredAt;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private CouponStatus status;
 
     public void use() {
