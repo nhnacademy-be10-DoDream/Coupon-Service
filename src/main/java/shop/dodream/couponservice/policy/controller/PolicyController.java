@@ -15,7 +15,7 @@ import shop.dodream.couponservice.policy.service.PolicyService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/policies")
+@RequestMapping("/admin/coupon-policies")
 @RequiredArgsConstructor
 public class PolicyController {
 
