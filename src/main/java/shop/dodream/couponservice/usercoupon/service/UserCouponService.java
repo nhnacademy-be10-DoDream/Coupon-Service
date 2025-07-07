@@ -62,6 +62,7 @@ public class UserCouponService {
         userCouponRepository.save(userCoupon);
     }
 
+    // 조건부로 유저들에게 쿠폰 발급
     @Transactional
     public void issueCouponsToUsers(IssueCouponToUsersRequest request) {
         Coupon coupon = couponRepository.findById(request.getCouponId())
@@ -83,7 +84,7 @@ public class UserCouponService {
         List<String> userIds = request.getUserIds();
 
         if (userIds == null || userIds.isEmpty() && request.getCondition() != null) {
-            userIds = userServiceClient.getUsers(request.getCondition());
+            userIds = userServiceClient.getUsers(request.getCondition().getGrade(), request.getCondition().getBirthMonth());
         }
 
         if (userIds == null || userIds.isEmpty()) {
