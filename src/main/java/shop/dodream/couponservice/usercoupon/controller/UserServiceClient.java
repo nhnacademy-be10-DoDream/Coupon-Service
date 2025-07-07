@@ -2,8 +2,8 @@ package shop.dodream.couponservice.usercoupon.controller;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import shop.dodream.couponservice.usercoupon.dto.UserSearchCondition;
+import org.springframework.web.bind.annotation.RequestParam;
+import shop.dodream.couponservice.common.Grade;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ import java.util.List;
 public interface UserServiceClient {
 
     @GetMapping("/users")
-    List<String> getUsers(@RequestBody UserSearchCondition condition);
+    List<String> getUsers(@RequestParam Grade grade, @RequestParam Integer birthMonth);
 }
