@@ -19,7 +19,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             CouponNotFoundException.class,
             CouponPolicyNotFoundException.class,
-            UserCouponNotFoundException.class
+            UserCouponNotFoundException.class,
+            UserNotFoundException.class,
     })
     public ProblemDetail handleNotFound(RuntimeException ex) {
         log.error(ex.getMessage(), ex);

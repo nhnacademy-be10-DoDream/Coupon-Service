@@ -7,12 +7,10 @@ import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.common.ExpiredStrategy;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
-import shop.dodream.couponservice.exception.CouponNotFoundException;
-import shop.dodream.couponservice.exception.InvalidCouponPolicyException;
-import shop.dodream.couponservice.exception.UnauthorizedUserCouponAccessException;
-import shop.dodream.couponservice.exception.UserCouponNotFoundException;
+import shop.dodream.couponservice.exception.*;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
 import shop.dodream.couponservice.usercoupon.controller.BookServiceClient;
+import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
 import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
 import shop.dodream.couponservice.usercoupon.dto.CategoryTreeResponse;
@@ -26,15 +24,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserCouponService {
 
     private final UserCouponRepository userCouponRepository;
     private final CouponRepository couponRepository;
     private final BookServiceClient bookServiceClient;
+    private final UserServiceClient userServiceClient;
 
     // 유저에 쿠폰 발급
+    @Transactional
     public void issuedCoupon(IssueCouponRequest request) {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
@@ -63,6 +62,7 @@ public class UserCouponService {
         userCouponRepository.save(userCoupon);
     }
 
+    @Transactional
     public void issueCouponsToUsers(IssueCouponToUsersRequest request) {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
@@ -80,7 +80,17 @@ public class UserCouponService {
             throw new InvalidCouponPolicyException("유효하지 않은 쿠폰 만료 정책입니다.");
         }
 
-        List<UserCoupon> userCoupons = request.getUserIds().stream()
+        List<String> userIds = request.getUserIds();
+
+        if (userIds == null || userIds.isEmpty() && request.getCondition() != null) {
+            userIds = userServiceClient.getUsers(request.getCondition());
+        }
+
+        if (userIds == null || userIds.isEmpty()) {
+            throw new UserNotFoundException("users not found");
+        }
+
+        List<UserCoupon> userCoupons = userIds.stream()
                 .map(userId -> UserCoupon.builder()
                         .userId(userId)
                         .coupon(coupon)
@@ -132,7 +142,7 @@ public class UserCouponService {
         return availableCoupons;
     }
 
-
+    @Transactional
     public void useCoupon(String userId, Long userCouponId) {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
@@ -144,6 +154,7 @@ public class UserCouponService {
         userCoupon.use();
     }
 
+    @Transactional
     public void applyCoupon(String userId, Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
                 .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
@@ -153,6 +164,7 @@ public class UserCouponService {
         userCoupon.apply();
     }
 
+    @Transactional
     public void useCoupons(String userId, List<Long> userCouponIds) {
         List<UserCoupon> userCoupons = userCouponRepository.findAllById(userCouponIds);
 
@@ -174,7 +186,7 @@ public class UserCouponService {
         return collectAllCategoryIds(categories);
     }
 
-    public List<Long> collectAllCategoryIds(List<CategoryTreeResponse> categories) {
+    private List<Long> collectAllCategoryIds(List<CategoryTreeResponse> categories) {
         List<Long> ids = new ArrayList<>();
         for (CategoryTreeResponse category : categories) {
             collectRecursively(category, ids);
