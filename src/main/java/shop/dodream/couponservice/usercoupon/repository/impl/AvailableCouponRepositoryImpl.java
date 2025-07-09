@@ -63,7 +63,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                         uc.userId.eq(userId),
                         uc.usedAt.isNull(),
                         uc.expiredAt.after(ZonedDateTime.now()),
-                        uc.status.ne(CouponStatus.APPLIED),
+                        uc.status.eq(CouponStatus.AVAILABLE),
                         cp.minPurchaseAmount.loe(bookPrice),
                         c.bookId.eq(bookId)
                                 .or(c.categoryId.in(categoryIds))
