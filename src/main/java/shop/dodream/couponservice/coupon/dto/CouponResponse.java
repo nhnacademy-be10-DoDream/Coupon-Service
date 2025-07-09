@@ -1,12 +1,9 @@
 package shop.dodream.couponservice.coupon.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import shop.dodream.couponservice.common.DiscountType;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
-
-import java.time.ZonedDateTime;
 
 @Getter
 @Setter
