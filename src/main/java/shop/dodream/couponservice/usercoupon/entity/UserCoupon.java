@@ -62,4 +62,11 @@ public class UserCoupon {
         this.status = CouponStatus.APPLIED;
     }
 
+    public void revoke() {
+        if (this.status == CouponStatus.AVAILABLE) {
+            throw new InvalidCouponPolicyException("이미 사용 가능한 쿠폰입니다.");
+        }
+        this.status = CouponStatus.AVAILABLE;
+    }
+
 }

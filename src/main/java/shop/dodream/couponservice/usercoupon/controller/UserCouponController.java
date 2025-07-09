@@ -56,6 +56,15 @@ public class UserCouponController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/coupons/me/{user-coupon-id}/revoke")
+    public ResponseEntity<Void> revokeCoupon(
+            @CurrentUser String userId,
+            @PathVariable("user-coupon-id") Long userCouponId
+    ) {
+        userCouponService.revokeCoupon(userId, userCouponId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/coupons/me/use-multiple")
     public ResponseEntity<Void> useMultipleCoupons(
             @CurrentUser String userId,
@@ -68,10 +77,9 @@ public class UserCouponController {
     @GetMapping("/coupons/book/{book-id}")
     public ResponseEntity<List<BookAvailableCouponResponse>> getAvailableCouponsforBook(
             @PathVariable("book-id") Long bookId,
-            @CurrentUser String userId,
-            @RequestParam Long bookPrice) {
+            @CurrentUser String userId) {
 
-        List<BookAvailableCouponResponse> coupons = userCouponService.getBookAvailableCoupons(userId, bookId, bookPrice);
+        List<BookAvailableCouponResponse> coupons = userCouponService.getBookAvailableCoupons(userId, bookId);
 
         return ResponseEntity.ok(coupons);
     }

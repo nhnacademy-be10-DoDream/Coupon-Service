@@ -11,11 +11,7 @@ import shop.dodream.couponservice.exception.*;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
 import shop.dodream.couponservice.usercoupon.controller.BookServiceClient;
 import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
-import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.CategoryTreeResponse;
-import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
-import shop.dodream.couponservice.usercoupon.dto.IssueCouponToUsersRequest;
+import shop.dodream.couponservice.usercoupon.dto.*;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
@@ -114,8 +110,9 @@ public class UserCouponService {
 
     // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
     @Transactional(readOnly = true)
-    public List<BookAvailableCouponResponse> getBookAvailableCoupons(String userId, Long bookId, Long bookPrice) {
+    public List<BookAvailableCouponResponse> getBookAvailableCoupons(String userId, Long bookId) {
         List<Long> categoryIds = getCategoryIdsByBook(bookId);
+        Long bookPrice = bookServiceClient.getBookSalePrice(bookId).getSalePrice();
         List<BookAvailableCouponResponse> availableCoupons = userCouponRepository.findAvailableCouponsForBook(userId
                 ,bookId
                 ,categoryIds
@@ -163,6 +160,18 @@ public class UserCouponService {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
         }
         userCoupon.apply();
+        userCouponRepository.save(userCoupon);
+    }
+
+    @Transactional
+    public void revokeCoupon(String userId, Long userCouponId) {
+        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
+        if (!userCoupon.getUserId().equals(userId)) {
+            throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
+        }
+        userCoupon.revoke();
+        userCouponRepository.save(userCoupon);
     }
 
     @Transactional
