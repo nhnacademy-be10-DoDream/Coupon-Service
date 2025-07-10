@@ -14,10 +14,16 @@ import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
 import shop.dodream.couponservice.usercoupon.dto.*;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
+
+import java.nio.file.AccessDeniedException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static shop.dodream.couponservice.usercoupon.entity.QUserCoupon.userCoupon;
 
 @Service
 @RequiredArgsConstructor
@@ -141,26 +147,16 @@ public class UserCouponService {
     }
 
     @Transactional
-    public void useCoupon(String userId, Long userCouponId) {
+    public void applyCoupons(String userId, List<BookCouponRequest> requests) {
+        List<Long> userCouponIds = requests.stream()
+                .map(BookCouponRequest::getUserCouponId)
+                .toList();
 
-        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
-        if (!userCoupon.getUserId().equals(userId)) {
-            throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
+        int updatedCount = userCouponRepository.applyAllByIds(userCouponIds, userId);
+
+        if (updatedCount != userCouponIds.size()) {
+            throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
         }
-
-        userCoupon.use();
-    }
-
-    @Transactional
-    public void applyCoupon(String userId, Long userCouponId) {
-        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
-        if (!userCoupon.getUserId().equals(userId)) {
-            throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
-        }
-        userCoupon.apply();
-        userCouponRepository.save(userCoupon);
     }
 
     @Transactional
@@ -176,17 +172,10 @@ public class UserCouponService {
 
     @Transactional
     public void useCoupons(String userId, List<Long> userCouponIds) {
-        List<UserCoupon> userCoupons = userCouponRepository.findAllById(userCouponIds);
+        int updatedCount = userCouponRepository.useAllByIds(userCouponIds, userId, ZonedDateTime.now());
 
-        if (userCoupons.size() != userCouponIds.size()) {
-            throw new UserCouponNotFoundException(userCouponIds);
-        }
-
-        for (UserCoupon userCoupon : userCoupons) {
-            if (!userCoupon.getUserId().equals(userId)) {
-                throw new UnauthorizedUserCouponAccessException(userId, userCoupon.getUserCouponId());
-            }
-            userCoupon.use();
+        if (updatedCount != userCouponIds.size()) {
+            throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
         }
     }
 

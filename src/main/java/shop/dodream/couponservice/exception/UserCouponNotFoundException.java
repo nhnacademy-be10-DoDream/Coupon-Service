@@ -11,4 +11,6 @@ public class UserCouponNotFoundException extends RuntimeException {
     public UserCouponNotFoundException(List<Long> ids) {
         super("Could not find user coupon with ids " + ids);
     }
+
+    public UserCouponNotFoundException(Long bookId, Long userCouponId) { super("Book Id " + bookId + ": " + userCouponId + " not found"); }
 }
