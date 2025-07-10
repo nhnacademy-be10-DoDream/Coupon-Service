@@ -6,11 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shop.dodream.couponservice.common.annotation.CurrentUser;
-import shop.dodream.couponservice.usercoupon.dto.AvailableCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
-import shop.dodream.couponservice.usercoupon.dto.IssueCouponToUsersRequest;
-import shop.dodream.couponservice.usercoupon.dto.UseCouponsRequest;
+import shop.dodream.couponservice.usercoupon.dto.*;
 import shop.dodream.couponservice.usercoupon.service.UserCouponService;
 
 import java.util.List;
@@ -38,21 +34,12 @@ public class UserCouponController {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    @PutMapping("/coupons/me/{user-coupon-id}/use")
-    public ResponseEntity<Void> useCoupon(
+    @PutMapping("/coupons/me/apply-multiple")
+    public ResponseEntity<Void> applyCoupons(
             @CurrentUser String userId,
-            @PathVariable("user-coupon-id") Long userCouponId
+            @RequestBody @Valid ApplyCouponsRequest request
     ) {
-        userCouponService.useCoupon(userId, userCouponId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/coupons/me/{user-coupon-id}/apply")
-    public ResponseEntity<Void> applyCoupon(
-            @CurrentUser String userId,
-            @PathVariable("user-coupon-id") Long userCouponId
-    ) {
-        userCouponService.applyCoupon(userId, userCouponId);
+        userCouponService.applyCoupons(userId, request.getRequests());
         return ResponseEntity.noContent().build();
     }
 

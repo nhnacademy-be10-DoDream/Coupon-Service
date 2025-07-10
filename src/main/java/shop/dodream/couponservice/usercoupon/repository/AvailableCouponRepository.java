@@ -9,6 +9,5 @@ public interface AvailableCouponRepository {
     List<AvailableCouponResponse> findAllAvailableByUserId(String userId);
     List<BookAvailableCouponResponse> findAvailableCouponsForBook(String userId,
                                                                   Long bookId,
-                                                                  List<Long> categoryIds,
-                                                                  Long bookPrice);
+                                                                  List<Long> categoryIds, Long bookPrice);
 }
