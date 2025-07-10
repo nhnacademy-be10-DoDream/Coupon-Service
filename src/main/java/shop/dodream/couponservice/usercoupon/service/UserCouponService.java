@@ -180,6 +180,37 @@ public class UserCouponService {
     }
 
     @Transactional(readOnly = true)
+    public List<OrderAppliedCouponResponse> getOrderAppliedCoupons(String userId, List<OrderAppliedCouponRequest> requests) {
+        List<OrderAppliedCouponResponse> appliedresponses = new ArrayList<>();
+        for (OrderAppliedCouponRequest request : requests) {
+            List<Long> categories = getCategoryIdsByBook(request.getBookId());
+            List<OrderAppliedCouponResponse> responses = userCouponRepository.findAppliedCouponsForOrder(userId,request.getBookId(),categories, request.getBookPrice());
+
+            for (OrderAppliedCouponResponse response : responses) {
+                Long discountValue = response.getDiscountValue();
+                Long bookPrice = request.getBookPrice();
+                Long discountAmount;
+
+                if (discountValue <= 100) {
+                    discountAmount = Math.round(bookPrice * (discountValue / 100.0));
+                } else {
+                    discountAmount = discountValue;
+                }
+
+                Long maxDiscount = response.getMaxDiscountAmount();
+                if (maxDiscount != null) {
+                    discountAmount = Math.min(maxDiscount, discountAmount);
+                }
+
+                Long finalPrice = bookPrice - discountAmount;
+                response.setFinalPrice(finalPrice);
+            }
+            appliedresponses.addAll(responses);
+        }
+        return  appliedresponses;
+    }
+
+    @Transactional(readOnly = true)
     public List<Long> getCategoryIdsByBook(Long bookId) {
         List<CategoryTreeResponse> categories = bookServiceClient.getCategoriesByBookId(bookId);
         return collectAllCategoryIds(categories);
