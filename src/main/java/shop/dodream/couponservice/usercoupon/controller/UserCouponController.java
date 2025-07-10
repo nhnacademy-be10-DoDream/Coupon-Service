@@ -71,7 +71,13 @@ public class UserCouponController {
         return ResponseEntity.ok(coupons);
     }
 
+    @PostMapping("/coupons/me/order-vaild")
+    public ResponseEntity<List<OrderAppliedCouponResponse>> orderCouponsVaild(
+            @CurrentUser String userId,
+            @RequestBody @Valid List<OrderAppliedCouponRequest> requests) {
 
-
-
+        List<OrderAppliedCouponResponse> coupons = userCouponService.getOrderAppliedCoupons(userId, requests);
+        
+        return ResponseEntity.ok(coupons);
+    }
 }
