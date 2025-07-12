@@ -11,5 +11,6 @@ import java.util.List;
 public interface UserServiceClient {
 
     @GetMapping("/users")
-    List<String> getUsers(@RequestParam Grade grade, @RequestParam Integer birthMonth);
+    List<String> getUsers(@RequestParam(value = "gradeType") Grade grade,
+                          @RequestParam(value = "birth-month") Integer birthMonth);
 }
