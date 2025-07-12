@@ -37,7 +37,7 @@ public class UserCouponService {
     // 유저에 쿠폰 발급
     @Transactional
     public void issuedCoupon(IssueCouponRequest request) {
-        Coupon coupon = couponRepository.findById(request.getCouponId())
+        Coupon coupon = couponRepository.findByCouponIdAndDeletedFalse(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
 
         CouponPolicy policy = coupon.getCouponPolicy();
@@ -67,7 +67,7 @@ public class UserCouponService {
     // 조건부로 유저들에게 쿠폰 발급
     @Transactional
     public void issueCouponsToUsers(IssueCouponToUsersRequest request) {
-        Coupon coupon = couponRepository.findById(request.getCouponId())
+        Coupon coupon = couponRepository.findByCouponIdAndDeletedFalse(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException(request.getCouponId()));
 
         CouponPolicy policy = coupon.getCouponPolicy();
@@ -161,7 +161,7 @@ public class UserCouponService {
 
     @Transactional
     public void revokeCoupon(String userId, Long userCouponId) {
-        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+        UserCoupon userCoupon = userCouponRepository.findByUserCouponIdAndDeletedFalse(userCouponId)
                 .orElseThrow(() -> new UserCouponNotFoundException(userCouponId));
         if (!userCoupon.getUserId().equals(userId)) {
             throw new UnauthorizedUserCouponAccessException(userId, userCouponId);
@@ -216,6 +216,24 @@ public class UserCouponService {
         return collectAllCategoryIds(categories);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserCouponResponse> getUserCouponsByCoupon(Long couponId) {
+        return userCouponRepository.findByCoupon_CouponIdAndDeletedFalse(couponId).stream()
+                .map(UserCouponResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteUserCouponsByCoupon(Long couponId) {
+        List<UserCoupon> coupons = userCouponRepository.findByCoupon_CouponIdAndDeletedFalse(couponId);
+        for (UserCoupon uc : coupons) {
+            uc.delete();
+        }
+        userCouponRepository.saveAll(coupons);
+    }
+
+
+    // 카테고리들
     private List<Long> collectAllCategoryIds(List<CategoryTreeResponse> categories) {
         List<Long> ids = new ArrayList<>();
         for (CategoryTreeResponse category : categories) {

@@ -34,16 +34,16 @@ public class PolicyService {
 
     //쿠폰 정책 삭제
     public void delete(Long id) {
-        if (!couponPolicyRepository.existsById(id)) {
-            throw new CouponPolicyNotFoundException(id);
-        }
-        couponPolicyRepository.deleteById(id);
+        CouponPolicy policy = couponPolicyRepository.findByPolicyIdAndDeletedFalse(id)
+                .orElseThrow(() -> new CouponPolicyNotFoundException(id));
+        policy.delete();
+        couponPolicyRepository.save(policy);
     }
 
     // 쿠폰 정책 업데이트
     public void update(Long id, UpdateCouponPolicyRequest request) {
         validateDiscountValue(request.getDiscountType(), request.getDiscountValue());
-        CouponPolicy couponPolicy = couponPolicyRepository.findById(id)
+        CouponPolicy couponPolicy = couponPolicyRepository.findByPolicyIdAndDeletedFalse(id)
                 .orElseThrow(() -> new CouponPolicyNotFoundException(id));
         couponPolicy.update(request);
         couponPolicyRepository.save(couponPolicy);
@@ -53,7 +53,7 @@ public class PolicyService {
     // id 로 단일 쿠폰 정책 조회
     @Transactional(readOnly = true)
     public CouponPolicyResponse getById(Long id) {
-        CouponPolicy couponPolicy = couponPolicyRepository.findById(id)
+        CouponPolicy couponPolicy = couponPolicyRepository.findByPolicyIdAndDeletedFalse(id)
                 .orElseThrow(() -> new CouponPolicyNotFoundException(id));
         return CouponPolicyResponse.from(couponPolicy);
     }
@@ -61,10 +61,12 @@ public class PolicyService {
     // 모든 쿠폰 정책 조회
     @Transactional(readOnly = true)
     public List<CouponPolicyResponse> getAll() {
-        return couponPolicyRepository.findAll().stream()
+        return couponPolicyRepository.findAllByDeletedFalse().stream()
                 .map(CouponPolicyResponse::from)
                 .toList();
     }
+
+
 
     private void validateDiscountValue(DiscountType discountType, Long value) {
         switch (discountType) {

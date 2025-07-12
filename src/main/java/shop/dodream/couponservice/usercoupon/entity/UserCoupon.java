@@ -43,6 +43,14 @@ public class UserCoupon {
     @Enumerated(EnumType.STRING)
     private CouponStatus status;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    public void delete() {
+        this.deleted = true;
+    }
+
     public void use() {
         if (this.usedAt != null) {
             throw new AlreadyUsedCouponException(this.userCouponId);

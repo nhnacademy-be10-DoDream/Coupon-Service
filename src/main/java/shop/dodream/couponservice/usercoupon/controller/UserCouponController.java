@@ -91,4 +91,17 @@ public class UserCouponController {
 
         return ResponseEntity.ok(coupons);
     }
+
+    @Operation(summary = "특정 쿠폰으로 발급된 유저 쿠폰 조회", description = "특정 쿠폰으로 발급된 유저 쿠폰 조회 API")
+    @GetMapping("/admin/user-coupons/by-coupon/{coupon-id}")
+    public ResponseEntity<List<UserCouponResponse>> getUserCouponsByCoupon(@PathVariable("coupon-id") Long couponId) {
+        return ResponseEntity.ok(userCouponService.getUserCouponsByCoupon(couponId));
+    }
+
+    @Operation(summary = "특정 쿠폰으로 발급된 유저 쿠폰 삭제", description = "특정 쿠폰으로 발급된 유저 쿠폰 논리 삭제 API")
+    @DeleteMapping("/admin/user-coupons/by-coupon/{coupon-id}")
+    public ResponseEntity<Void> deleteUserCouponsByCoupon(@PathVariable("coupon-id") Long couponId) {
+        userCouponService.deleteUserCouponsByCoupon(couponId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -33,7 +33,8 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                 .where(
                         uc.userId.eq(userId),
                         uc.usedAt.isNull(),
-                        uc.expiredAt.after(ZonedDateTime.now())
+                        uc.expiredAt.after(ZonedDateTime.now()),
+                        uc.deleted.isFalse()
                 )
                 .select(new QAvailableCouponResponse(
                         cp.name,
@@ -61,6 +62,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                         uc.usedAt.isNull(),
                         uc.expiredAt.after(ZonedDateTime.now()),
                         uc.status.eq(CouponStatus.AVAILABLE),
+                        uc.deleted.isFalse(),
                         cp.minPurchaseAmount.loe(bookPrice),
                         c.bookId.eq(bookId)
                                 .or(c.categoryId.in(categoryIds))
@@ -92,6 +94,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                         uc.usedAt.isNull(),
                         uc.expiredAt.after(ZonedDateTime.now()),
                         uc.status.eq(CouponStatus.APPLIED),
+                        uc.deleted.isFalse(),
                         cp.minPurchaseAmount.loe(bookPrice),
                         c.bookId.eq(bookId)
                                 .or(c.categoryId.in(categoryIds))
