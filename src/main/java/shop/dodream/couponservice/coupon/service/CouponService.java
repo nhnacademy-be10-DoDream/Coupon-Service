@@ -39,12 +39,12 @@ public class CouponService {
         couponRepository.save(coupon);
     }
 
-    // 쿠폰 삭제
+    // 단일 쿠폰 삭제
     public void deleteCoupon(Long couponId) {
-        if (!couponRepository.existsByCouponIdAndDeletedFalse(couponId)) {
-            throw new CouponNotFoundException(couponId);
-        }
-        couponRepository.deleteById(couponId);
+        Coupon coupon = couponRepository.findByCouponIdAndDeletedFalse(couponId)
+                .orElseThrow(() -> new CouponNotFoundException(couponId));
+        coupon.delete();
+        couponRepository.save(coupon);
     }
 
     // 정책별 쿠폰 조회
