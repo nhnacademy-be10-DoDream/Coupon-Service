@@ -27,7 +27,7 @@ public class CouponService {
 
     // 쿠폰 생성
     public void createCoupon(CreateCouponRequest request) {
-        CouponPolicy policy = couponPolicyRepository.findById(request.getPolicyId())
+        CouponPolicy policy = couponPolicyRepository.findByPolicyIdAndDeletedFalse(request.getPolicyId())
                 .orElseThrow(() -> new CouponPolicyNotFoundException(request.getPolicyId()));
 
         Coupon coupon = Coupon.builder()
@@ -39,18 +39,18 @@ public class CouponService {
         couponRepository.save(coupon);
     }
 
-    // 쿠폰 삭제
+    // 단일 쿠폰 삭제
     public void deleteCoupon(Long couponId) {
-        if (!couponRepository.existsById(couponId)) {
-            throw new CouponNotFoundException(couponId);
-        }
-        couponRepository.deleteById(couponId);
+        Coupon coupon = couponRepository.findByCouponIdAndDeletedFalse(couponId)
+                .orElseThrow(() -> new CouponNotFoundException(couponId));
+        coupon.delete();
+        couponRepository.save(coupon);
     }
 
     // 정책별 쿠폰 조회
     @Transactional(readOnly = true)
     public List<CouponResponse> getCouponsByPolicy(Long policyId) {
-        return couponRepository.findByCouponPolicyPolicyId(policyId).stream()
+        return couponRepository.findByCouponPolicyPolicyIdAndDeletedFalse(policyId).stream()
                 .map(CouponResponse::from)
                 .toList();
     }
@@ -58,7 +58,7 @@ public class CouponService {
     // 단일 쿠폰 조회
     @Transactional(readOnly = true)
     public CouponResponse getCoupon(Long couponId) {
-        return couponRepository.findById(couponId)
+        return couponRepository.findByCouponIdAndDeletedFalse(couponId)
                 .map(CouponResponse::from)
                 .orElseThrow(() -> new CouponNotFoundException(couponId));
     }
@@ -66,8 +66,17 @@ public class CouponService {
     // 모든 쿠폰 조회
     @Transactional(readOnly = true)
     public Page<CouponResponse> getAllCoupons(Pageable pageable) {
-        return couponRepository.findAll(pageable)
+        return couponRepository.findAllByDeletedFalse(pageable)
                 .map(CouponResponse::from);
+    }
+
+    // 특정 정책 내 쿠폰들 모두 삭제
+    public void deleteCouponsByPolicy(Long policyId) {
+        List<Coupon> coupons = couponRepository.findByCouponPolicyPolicyIdAndDeletedFalse(policyId);
+        for (Coupon coupon : coupons) {
+            coupon.delete();
+        }
+        couponRepository.saveAll(coupons);
     }
 }
 

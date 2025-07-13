@@ -47,6 +47,14 @@ public class CouponPolicy {
 
     private Long plusDay;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    public void delete() {
+        this.deleted = true;
+    }
+
 
     public void update(UpdateCouponPolicyRequest request) {
         this.name = request.getName();
