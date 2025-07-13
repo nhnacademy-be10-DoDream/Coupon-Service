@@ -8,6 +8,7 @@ import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface UserCouponRepository extends JpaRepository<UserCoupon, Long>, AvailableCouponRepository {
@@ -21,4 +22,8 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long>, A
     @Query("update UserCoupon uc set uc.status = shop.dodream.couponservice.common.CouponStatus.USED, uc.usedAt = :usedAt " +
             "where uc.userCouponId in :userCouponIds and uc.userId = :userId and uc.status = shop.dodream.couponservice.common.CouponStatus.APPLIED")
     int useAllByIds(@Param("userCouponIds") List<Long> userCouponIds, @Param("userId") String userId, @Param("usedAt") ZonedDateTime usedAt);
+
+    List<UserCoupon> findByCoupon_CouponIdAndDeletedFalse(Long couponId);
+
+    Optional<UserCoupon> findByUserCouponIdAndDeletedFalse(Long userCouponId);
 }

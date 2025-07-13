@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import shop.dodream.couponservice.coupon.dto.CouponResponse;
 import shop.dodream.couponservice.coupon.dto.CreateCouponRequest;
 import shop.dodream.couponservice.coupon.service.CouponService;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

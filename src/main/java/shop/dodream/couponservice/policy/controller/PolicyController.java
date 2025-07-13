@@ -66,5 +66,12 @@ public class PolicyController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "정책의 모든 쿠폰 삭제", description = "정책의 모든 쿠폰 논리 삭제 API")
+    @DeleteMapping("/{policy-id}/coupons")
+    public ResponseEntity<Void> deleteCouponsByPolicy(@PathVariable("policy-id") Long policyId) {
+        couponService.deleteCouponsByPolicy(policyId);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

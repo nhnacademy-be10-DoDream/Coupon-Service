@@ -26,4 +26,12 @@ public class Coupon {
 
     private Long categoryId;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    public void delete() {
+        this.deleted = true;
+    }
+
 }
