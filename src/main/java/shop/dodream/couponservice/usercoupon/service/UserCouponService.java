@@ -14,16 +14,10 @@ import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
 import shop.dodream.couponservice.usercoupon.dto.*;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
-
-import java.nio.file.AccessDeniedException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static shop.dodream.couponservice.usercoupon.entity.QUserCoupon.userCoupon;
 
 @Service
 @RequiredArgsConstructor

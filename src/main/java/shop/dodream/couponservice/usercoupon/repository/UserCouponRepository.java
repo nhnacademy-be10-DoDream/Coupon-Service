@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 
 import java.time.ZonedDateTime;
@@ -27,8 +26,4 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long>, A
     List<UserCoupon> findByCoupon_CouponIdAndDeletedFalse(Long couponId);
 
     Optional<UserCoupon> findByUserCouponIdAndDeletedFalse(Long userCouponId);
-
-    boolean existsUserCouponIdAndDeletedFalse(Long userCouponId);
-
-    List<UserCoupon> findAllByDeletedFalse();
 }
