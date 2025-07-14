@@ -181,7 +181,11 @@ public class UserCouponService {
         String userId = requests.getUserId();
         for (BookPriceRequest request : requests.getBooks()) {
             List<Long> categories = Optional.ofNullable(getCategoryIdsByBook(request.getBookId())).orElse(new ArrayList<>());
-            List<OrderAppliedCouponResponse> responses = userCouponRepository.findAppliedCouponsForOrder(userId,request.getBookId(),categories, request.getBookPrice());
+            List<OrderAppliedCouponResponse> responses = userCouponRepository.findAppliedCouponsForOrder(userId,
+                    request.getBookId(),
+                    categories,
+                    request.getBookPrice(),
+                    request.getCouponId());
 
             for (OrderAppliedCouponResponse response : responses) {
 
