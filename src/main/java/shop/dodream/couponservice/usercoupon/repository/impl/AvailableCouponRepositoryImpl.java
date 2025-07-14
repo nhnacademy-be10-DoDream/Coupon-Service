@@ -80,7 +80,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
     }
 
     @Override
-    public List<OrderAppliedCouponResponse> findAppliedCouponsForOrder(String userId, Long bookId, List<Long> categoryIds, Long bookPrice) {
+    public List<OrderAppliedCouponResponse> findAppliedCouponsForOrder(String userId, Long bookId, List<Long> categoryIds, Long bookPrice, Long userCouponId) {
 
         QUserCoupon uc = QUserCoupon.userCoupon;
         QCoupon c = QCoupon.coupon;
@@ -92,6 +92,7 @@ public class AvailableCouponRepositoryImpl extends QuerydslRepositorySupport imp
                 .where(
                         uc.userId.eq(userId),
                         uc.usedAt.isNull(),
+                        uc.userCouponId.eq(userCouponId),
                         uc.expiredAt.after(ZonedDateTime.now()),
                         uc.status.eq(CouponStatus.APPLIED),
                         uc.deleted.isFalse(),
