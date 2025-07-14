@@ -11,5 +11,9 @@ public interface AvailableCouponRepository {
     List<BookAvailableCouponResponse> findAvailableCouponsForBook(String userId,
                                                                   Long bookId,
                                                                   List<Long> categoryIds, Long bookPrice);
-    List<OrderAppliedCouponResponse> findAppliedCouponsForOrder(String userId, Long bookId, List<Long> categoryIds, Long bookPrice);
+    List<OrderAppliedCouponResponse> findAppliedCouponsForOrder(String userId,
+                                                                Long bookId,
+                                                                List<Long> categoryIds,
+                                                                Long bookPrice,
+                                                                Long userCouponId);
 }

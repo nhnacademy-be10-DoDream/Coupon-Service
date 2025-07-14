@@ -15,4 +15,7 @@ public class BookPriceRequest {
 
     @NotNull
     private Long bookPrice;
+
+    @NotNull
+    private Long couponId;
 }
