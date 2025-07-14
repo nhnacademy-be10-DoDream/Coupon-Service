@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class OrderAppliedCouponResponse {
 
+    private Long bookId;
     private Long couponId;
     private String policyName;
     private Long discountValue;

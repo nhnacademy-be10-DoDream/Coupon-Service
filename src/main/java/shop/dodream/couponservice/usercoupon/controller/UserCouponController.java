@@ -84,10 +84,9 @@ public class UserCouponController {
     @Operation(summary = "실제 적용한 쿠폰이 맞는지 검증", description = "실제 적용한 쿠폰이 맞는지 검증 API")
     @PostMapping("/coupons/me/order-valid")
     public ResponseEntity<List<OrderAppliedCouponResponse>> orderCouponsValid(
-            @CurrentUser String userId,
-            @RequestBody @Valid List<OrderAppliedCouponRequest> requests) {
+            @RequestBody @Valid OrderAppliedCouponRequest requests) {
 
-        List<OrderAppliedCouponResponse> coupons = userCouponService.getOrderAppliedCoupons(userId, requests);
+        List<OrderAppliedCouponResponse> coupons = userCouponService.getOrderAppliedCoupons(requests);
 
         return ResponseEntity.ok(coupons);
     }
