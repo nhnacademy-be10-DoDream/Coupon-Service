@@ -103,4 +103,12 @@ public class UserCouponController {
         userCouponService.deleteUserCouponsByCoupon(couponId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "유저 쿠폰들 상태 활성화", description = "유저 쿠폰들 상태 활성화 API")
+    @PutMapping("/admin/user-coupons/revokes")
+    public ResponseEntity<Void> revokeUserCoupons(@CurrentUser String userId,
+                                                  @RequestBody List<Long> userCouponIds ) {
+        userCouponService.revokeCoupons(userId, userCouponIds);
+        return ResponseEntity.noContent().build();
+    }
 }
