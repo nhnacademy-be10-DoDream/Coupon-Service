@@ -9,12 +9,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/actuator")
 public class EurekaStatusController {
 
-    private final ApplicationInfoManager aim;
+    private final Optional<ApplicationInfoManager> aim;
     private final ApplicationEventPublisher publisher;
 
     @PostMapping("/drain")
@@ -22,8 +24,8 @@ public class EurekaStatusController {
         publisher.publishEvent(
                 new AvailabilityChangeEvent<>(this, ReadinessState.REFUSING_TRAFFIC)
         );
-
-        aim.setInstanceStatus(InstanceInfo.InstanceStatus.OUT_OF_SERVICE);
+        aim.ifPresent(applicationInfoManager ->
+                applicationInfoManager.setInstanceStatus(InstanceInfo.InstanceStatus.OUT_OF_SERVICE));
 
         return ResponseEntity.noContent().build();
     }
