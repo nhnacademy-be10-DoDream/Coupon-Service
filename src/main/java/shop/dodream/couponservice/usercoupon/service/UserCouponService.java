@@ -16,7 +16,6 @@ import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,9 +104,7 @@ public class UserCouponService {
     // 사용자 마이페이지 사용가능한 전체 쿠폰 조회 페이징?
     @Transactional(readOnly = true)
     public List<AvailableCouponResponse> getAvailableCoupons(String userId) {
-
-        List<AvailableCouponResponse> availableCoupons = userCouponRepository.findAllAvailableByUserId(userId);
-        return availableCoupons;
+        return userCouponRepository.findAllAvailableByUserId(userId);
     }
 
     // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
@@ -164,6 +161,14 @@ public class UserCouponService {
         }
         userCoupon.revoke();
         userCouponRepository.save(userCoupon);
+    }
+
+    @Transactional
+    public void revokeCoupons(String userId, List<Long> userCouponIds) {
+        int revokeCount = userCouponRepository.revokeAllByIds(userCouponIds, userId);
+        if (revokeCount != userCouponIds.size()) {
+            throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
+        }
     }
 
     @Transactional
