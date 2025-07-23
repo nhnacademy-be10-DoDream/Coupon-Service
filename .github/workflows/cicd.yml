@@ -61,7 +61,7 @@ jobs:
         run: |
           java -Dserver.port=9999 \
                -Dspring.profiles.active=ci \
-               -Dspring.application.name=user \
+               -Dspring.application.name=coupon \
                -Dspring.cloud.discovery.enabled=false \
                -jar target/*.jar &
           PID=$!
@@ -87,7 +87,7 @@ jobs:
     if: github.event_name == 'push'
 
     env:
-      SERVICE_NAME: user
+      SERVICE_NAME: coupon
 
     steps:
       - name: 📥 Checkout Repository
