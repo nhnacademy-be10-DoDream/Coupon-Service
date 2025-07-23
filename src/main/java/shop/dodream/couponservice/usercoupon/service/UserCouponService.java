@@ -1,6 +1,7 @@
 package shop.dodream.couponservice.usercoupon.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.dodream.couponservice.common.CouponStatus;
@@ -9,6 +10,7 @@ import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
 import shop.dodream.couponservice.exception.*;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
+import shop.dodream.couponservice.policy.repository.CouponPolicyRepository;
 import shop.dodream.couponservice.usercoupon.controller.BookServiceClient;
 import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
 import shop.dodream.couponservice.usercoupon.dto.*;
@@ -16,7 +18,6 @@ import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class UserCouponService {
 
     private final UserCouponRepository userCouponRepository;
     private final CouponRepository couponRepository;
+    private final CouponPolicyRepository couponPolicyRepository;
     private final BookServiceClient bookServiceClient;
     private final UserServiceClient userServiceClient;
 
@@ -105,9 +107,7 @@ public class UserCouponService {
     // 사용자 마이페이지 사용가능한 전체 쿠폰 조회 페이징?
     @Transactional(readOnly = true)
     public List<AvailableCouponResponse> getAvailableCoupons(String userId) {
-
-        List<AvailableCouponResponse> availableCoupons = userCouponRepository.findAllAvailableByUserId(userId);
-        return availableCoupons;
+        return userCouponRepository.findAllAvailableByUserId(userId);
     }
 
     // 상품별 사용가능한 쿠폰들 - 장바구니 적용?
@@ -164,6 +164,14 @@ public class UserCouponService {
         }
         userCoupon.revoke();
         userCouponRepository.save(userCoupon);
+    }
+
+    @Transactional
+    public void revokeCoupons(String userId, List<Long> userCouponIds) {
+        int revokeCount = userCouponRepository.revokeAllByIds(userCouponIds, userId);
+        if (revokeCount != userCouponIds.size()) {
+            throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
+        }
     }
 
     @Transactional
@@ -234,6 +242,29 @@ public class UserCouponService {
             uc.delete();
         }
         userCouponRepository.saveAll(coupons);
+    }
+
+    // 웰컴쿠폰 발급 - rabbitmq 사용
+    @Transactional
+    @RabbitListener(queues = "${coupon.rabbit.queue}", containerFactory = "rabbitListenerContainerFactory")
+    public void issueWelcome(String userId) {
+        if (userId == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        CouponPolicy welcomePolicy = couponPolicyRepository.findByNameContainsAndDeletedFalse("웰컴")
+                .orElseThrow(() -> new CouponPolicyNotFoundException("웰컴 쿠폰 정책이 없습니다."));
+
+        Long welcomePolicyId = welcomePolicy.getPolicyId();
+
+        Long welcomeCouponId = couponRepository.findByCouponPolicyPolicyIdAndDeletedFalse(welcomePolicyId).getFirst().getCouponId();
+
+        if (welcomeCouponId == null) {
+            throw new CouponNotFoundException("웰컴 쿠폰이 존재하지 않습니다.");
+        }
+
+        IssueCouponRequest issueCouponRequest = new IssueCouponRequest(userId, welcomeCouponId);
+
+        issuedCoupon(issueCouponRequest);
     }
 
 

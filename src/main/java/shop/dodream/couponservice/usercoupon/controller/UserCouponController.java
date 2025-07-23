@@ -51,9 +51,9 @@ public class UserCouponController {
     }
 
     @Operation(summary = "단일 유저쿠폰 상태 복구", description = "단일 유저쿠폰 상태 AVAILABLE 복구 API")
-    @PutMapping("/coupons/me/{user-coupon-id}/revoke")
+    @PutMapping("/admin/user-coupons/{user-id}/revoke/{user-coupon-id}")
     public ResponseEntity<Void> revokeCoupon(
-            @CurrentUser String userId,
+            @PathVariable(name = "user-id") String userId,
             @PathVariable("user-coupon-id") Long userCouponId
     ) {
         userCouponService.revokeCoupon(userId, userCouponId);
@@ -101,6 +101,14 @@ public class UserCouponController {
     @DeleteMapping("/admin/user-coupons/{coupon-id}")
     public ResponseEntity<Void> deleteUserCouponsByCoupon(@PathVariable("coupon-id") Long couponId) {
         userCouponService.deleteUserCouponsByCoupon(couponId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "유저 쿠폰들 상태 활성화", description = "유저 쿠폰들 상태 활성화 API")
+    @PutMapping("/admin/user-coupons/revokes")
+    public ResponseEntity<Void> revokeUserCoupons(@RequestParam String userId,
+                                                  @RequestBody List<Long> userCouponIds ) {
+        userCouponService.revokeCoupons(userId, userCouponIds);
         return ResponseEntity.noContent().build();
     }
 }
