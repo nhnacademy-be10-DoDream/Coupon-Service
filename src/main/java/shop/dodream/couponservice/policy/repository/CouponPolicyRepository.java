@@ -14,4 +14,6 @@ public interface CouponPolicyRepository extends JpaRepository<CouponPolicy, Long
     boolean existsByPolicyIdAndDeletedFalse(Long policyId);
 
     List<CouponPolicy> findAllByDeletedFalse();
+
+    Optional<CouponPolicy> findByNameContainsAndDeletedFalse(String name);
 }
