@@ -28,6 +28,7 @@ public class PolicyService {
         }
 
         validateDiscountValue(request.getDiscountType(), request.getDiscountValue());
+        validatePurchaseAmount(request.getMinPurchaseAmount(), request.getMaxDiscountAmount());
         CouponPolicy couponPolicy = request.toEntity();
         couponPolicyRepository.save(couponPolicy);
     }
@@ -43,6 +44,7 @@ public class PolicyService {
     // 쿠폰 정책 업데이트
     public void update(Long id, UpdateCouponPolicyRequest request) {
         validateDiscountValue(request.getDiscountType(), request.getDiscountValue());
+        validatePurchaseAmount(request.getMinPurchaseAmount(), request.getMaxDiscountAmount());
         CouponPolicy couponPolicy = couponPolicyRepository.findByPolicyIdAndDeletedFalse(id)
                 .orElseThrow(() -> new CouponPolicyNotFoundException(id));
         couponPolicy.update(request);
@@ -80,6 +82,12 @@ public class PolicyService {
                     throw new ValidationException("flat discount must be greater than 100");
                 }
             }
+        }
+    }
+
+    private void validatePurchaseAmount(Long minPurchaseAmount, Long maxDiscountAmount) {
+        if (minPurchaseAmount > maxDiscountAmount) {
+            throw new ValidationException("minimum discount must be less than maximum discount amount");
         }
     }
 
