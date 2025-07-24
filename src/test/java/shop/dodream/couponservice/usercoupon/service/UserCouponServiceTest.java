@@ -6,25 +6,23 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.common.DiscountType;
 import shop.dodream.couponservice.common.ExpiredStrategy;
+import shop.dodream.couponservice.common.properties.CouponRabbitProperties;
+import shop.dodream.couponservice.common.rabbitmq.IssueWelcomeRabbitListener;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
 import shop.dodream.couponservice.exception.CouponNotFoundException;
 import shop.dodream.couponservice.exception.UnauthorizedUserCouponAccessException;
 import shop.dodream.couponservice.exception.InvalidUserCouponStatusException;
 import shop.dodream.couponservice.policy.entity.CouponPolicy;
+import shop.dodream.couponservice.policy.repository.CouponPolicyRepository;
 import shop.dodream.couponservice.usercoupon.controller.BookServiceClient;
 import shop.dodream.couponservice.usercoupon.controller.UserServiceClient;
-import shop.dodream.couponservice.usercoupon.dto.BookCouponRequest;
-import shop.dodream.couponservice.usercoupon.dto.IssueCouponRequest;
-import shop.dodream.couponservice.usercoupon.dto.BookAvailableCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.OrderAppliedCouponResponse;
-import shop.dodream.couponservice.usercoupon.dto.BookDetailResponse;
-import shop.dodream.couponservice.usercoupon.dto.BookPriceRequest;
-import shop.dodream.couponservice.usercoupon.dto.OrderAppliedCouponRequest;
-import shop.dodream.couponservice.usercoupon.dto.CategoryTreeResponse;
+import shop.dodream.couponservice.usercoupon.dto.*;
 import shop.dodream.couponservice.usercoupon.entity.UserCoupon;
 import shop.dodream.couponservice.usercoupon.repository.UserCouponRepository;
 
@@ -35,6 +33,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -48,6 +47,14 @@ class UserCouponServiceTest {
     private BookServiceClient bookServiceClient;
     @Mock
     private UserServiceClient userServiceClient;
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+    @Mock
+    private CouponRabbitProperties properties;
+    @Mock
+    private CouponPolicyRepository couponPolicyRepository;
+    @Mock
+    private IssueWelcomeRabbitListener issueWelcomeRabbitListener;
 
     @InjectMocks
     private UserCouponService userCouponService;
@@ -125,7 +132,12 @@ class UserCouponServiceTest {
     void applyCoupons() {
         given(userCouponRepository.applyAllByIds(List.of(1L), "u")).willReturn(1);
         BookCouponRequest br = new BookCouponRequest(1L, 1L);
-        userCouponService.applyCoupons("u", List.of(br));
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userCouponService.applyCoupons("u", List.of(br));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
         verify(userCouponRepository).applyAllByIds(List.of(1L), "u");
     }
 
@@ -134,8 +146,13 @@ class UserCouponServiceTest {
     void applyCouponsFail() {
         given(userCouponRepository.applyAllByIds(List.of(1L), "u")).willReturn(0);
         BookCouponRequest br = new BookCouponRequest(1L, 1L);
-        assertThatThrownBy(() -> userCouponService.applyCoupons("u", List.of(br)))
-                .isInstanceOf(InvalidUserCouponStatusException.class);
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            assertThatThrownBy(() -> userCouponService.applyCoupons("u", List.of(br)))
+                    .isInstanceOf(InvalidUserCouponStatusException.class);
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test
@@ -263,4 +280,76 @@ class UserCouponServiceTest {
         assertThat(result.get(0).getBookId()).isEqualTo(1L);
         assertThat(result.get(0).getFinalPrice()).isEqualTo(18000L);
     }
+
+    @Test
+    @DisplayName("USED 상태 쿠폰 복구")
+    void revokeUsedCoupons() {
+        given(userCouponRepository.revokeAllUsedByIds(List.of(1L), "u")).willReturn(1);
+        userCouponService.revokeUsedCoupons("u", List.of(1L));
+        verify(userCouponRepository).revokeAllUsedByIds(List.of(1L), "u");
+    }
+
+    @Test
+    @DisplayName("USED 상태 쿠폰 복구 실패")
+    void revokeUsedCouponsFail() {
+        given(userCouponRepository.revokeAllUsedByIds(List.of(1L), "u")).willReturn(0);
+        assertThatThrownBy(() -> userCouponService.revokeUsedCoupons("u", List.of(1L)))
+                .isInstanceOf(InvalidUserCouponStatusException.class);
+    }
+
+    @Test
+    @DisplayName("APPLIED 상태 쿠폰 복구")
+    void revokeAppliedCoupons() {
+        ReleasePayload payload = new ReleasePayload("u", List.of(1L));
+        given(userCouponRepository.revokeAllAppliedByIds(List.of(1L), "u")).willReturn(1);
+        userCouponService.revokeAppliedCoupons(payload);
+        verify(userCouponRepository).revokeAllAppliedByIds(List.of(1L), "u");
+    }
+
+    @Test
+    @DisplayName("APPLIED 상태 쿠폰 복구 개수 불일치")
+    void revokeAppliedCouponsMismatch() {
+        ReleasePayload payload = new ReleasePayload("u", List.of(1L,2L));
+        given(userCouponRepository.revokeAllAppliedByIds(List.of(1L,2L), "u")).willReturn(1);
+        assertThatThrownBy(() -> userCouponService.revokeAppliedCoupons(payload))
+                .isInstanceOf(InvalidUserCouponStatusException.class);
+    }
+
+    @Test
+    @DisplayName("APPLIED 상태 쿠폰 복구 대상 없음")
+    void revokeAppliedCouponsNone() {
+        ReleasePayload payload = new ReleasePayload("u", List.of(1L));
+        given(userCouponRepository.revokeAllAppliedByIds(List.of(1L), "u")).willReturn(0);
+        userCouponService.revokeAppliedCoupons(payload);
+        verify(userCouponRepository).revokeAllAppliedByIds(List.of(1L), "u");
+    }
+
+    @Test
+    @DisplayName("useCoupons 성공")
+    void useCoupons() {
+        given(userCouponRepository.useAllByIds(
+                eq(List.of(1L)),
+                eq("u"),
+                any(ZonedDateTime.class)
+        )).willReturn(1);
+
+        userCouponService.useCoupons("u", List.of(1L));
+
+        verify(userCouponRepository).useAllByIds(
+                eq(List.of(1L)), eq("u"), any(ZonedDateTime.class));
+
+    }
+
+    @Test
+    @DisplayName("useCoupons 실패")
+    void useCouponsFail() {
+        given(userCouponRepository.useAllByIds(
+                eq(List.of(1L)), eq("u"), any(ZonedDateTime.class)
+        )).willReturn(0);
+
+        assertThatThrownBy(() ->
+                userCouponService.useCoupons("u", List.of(1L)))
+                .isInstanceOf(InvalidUserCouponStatusException.class);
+    }
+
 }

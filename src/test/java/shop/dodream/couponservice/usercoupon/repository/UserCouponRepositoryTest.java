@@ -147,4 +147,31 @@ class UserCouponRepositoryTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getCouponId()).isEqualTo(uc.getUserCouponId());
     }
+
+    @Test
+    @DisplayName("APPLIED 상태 쿠폰 복구 쿼리")
+    void revokeAllAppliedByIds() {
+        UserCoupon uc = createUserCoupon("u");
+        uc.apply();
+        userCouponRepository.save(uc);
+
+        int count = userCouponRepository.revokeAllAppliedByIds(List.of(uc.getUserCouponId()), "u");
+        assertThat(count).isEqualTo(1);
+        UserCoupon updated = userCouponRepository.findById(uc.getUserCouponId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(CouponStatus.AVAILABLE);
+    }
+
+    @Test
+    @DisplayName("USED 상태 쿠폰 복구 쿼리")
+    void revokeAllUsedByIds() {
+        UserCoupon uc = createUserCoupon("u");
+        uc.apply();
+        uc.use();
+        userCouponRepository.save(uc);
+
+        int count = userCouponRepository.revokeAllUsedByIds(List.of(uc.getUserCouponId()), "u");
+        assertThat(count).isEqualTo(1);
+        UserCoupon updated = userCouponRepository.findById(uc.getUserCouponId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(CouponStatus.AVAILABLE);
+    }
 }
