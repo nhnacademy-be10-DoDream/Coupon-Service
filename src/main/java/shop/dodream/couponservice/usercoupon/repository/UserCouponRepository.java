@@ -29,7 +29,7 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long>, A
     int revokeAllAppliedByIds(@Param("userCouponIds") List<Long> userCouponIds, @Param("userId") String userId);
 
     @Modifying(clearAutomatically = true)
-    @Query("update UserCoupon uc set uc.status = shop.dodream.couponservice.common.CouponStatus.AVAILABLE " +
+    @Query("update UserCoupon uc set uc.status = shop.dodream.couponservice.common.CouponStatus.AVAILABLE, uc.usedAt = null " +
             "where uc.userCouponId in :userCouponIds and uc.userId = :userId and uc.deleted = false and uc.status = shop.dodream.couponservice.common.CouponStatus.USED")
     int revokeAllUsedByIds(@Param("userCouponIds") List<Long> userCouponIds, @Param("userId") String userId);
 

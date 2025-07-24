@@ -208,6 +208,9 @@ public class UserCouponService {
 
     @Transactional
     public void revokeUsedCoupons(String userId, List<Long> userCouponIds) {
+        if (userId == null) {
+            throw new UserNotFoundException("user is null");
+        }
         int revokeCount = userCouponRepository.revokeAllUsedByIds(userCouponIds, userId);
         if (revokeCount != userCouponIds.size()) {
             throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
@@ -216,6 +219,9 @@ public class UserCouponService {
 
     @Transactional
     public void useCoupons(String userId, List<Long> userCouponIds) {
+        if (userId == null) {
+            throw new UserNotFoundException("user is null");
+        }
         int updatedCount = userCouponRepository.useAllByIds(userCouponIds, userId, ZonedDateTime.now());
 
         if (updatedCount != userCouponIds.size()) {
@@ -283,30 +289,6 @@ public class UserCouponService {
         }
         userCouponRepository.saveAll(coupons);
     }
-
-    // 웰컴쿠폰 발급 - rabbitmq 사용
-    @Transactional
-    @RabbitListener(queues = "${coupon.rabbit.queue}", containerFactory = "rabbitListenerContainerFactory")
-    public void issueWelcome(String userId) {
-        if (userId == null) {
-            throw new UserNotFoundException("User not found");
-        }
-        CouponPolicy welcomePolicy = couponPolicyRepository.findByNameContainsAndDeletedFalse("웰컴")
-                .orElseThrow(() -> new CouponPolicyNotFoundException("웰컴 쿠폰 정책이 없습니다."));
-
-        Long welcomePolicyId = welcomePolicy.getPolicyId();
-
-        Long welcomeCouponId = couponRepository.findByCouponPolicyPolicyIdAndDeletedFalse(welcomePolicyId).getFirst().getCouponId();
-
-        if (welcomeCouponId == null) {
-            throw new CouponNotFoundException("웰컴 쿠폰이 존재하지 않습니다.");
-        }
-
-        IssueCouponRequest issueCouponRequest = new IssueCouponRequest(userId, welcomeCouponId);
-
-        issuedCoupon(issueCouponRequest);
-    }
-
 
     // 카테고리들
     private List<Long> collectAllCategoryIds(List<CategoryTreeResponse> categories) {

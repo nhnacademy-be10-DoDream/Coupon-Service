@@ -60,12 +60,16 @@ class UserCouponControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /coupons/me/{id}/revoke")
+    @DisplayName("PUT /admin/user-coupons/{user-id}/revoke/{user-coupon-id} → 204, 서비스 호출")
     void revokeCoupon() throws Exception {
-        mockMvc.perform(put("/coupons/me/5/revoke")
-                        .header("X-USER-ID", "u"))
+        String userId = "u";
+        Long couponId = 5L;
+
+        mockMvc.perform(put("/admin/user-coupons/{user-id}/revoke/{user-coupon-id}", userId, couponId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        verify(userCouponService).revokeCoupon("u", 5L);
+
+        verify(userCouponService).revokeCoupon(userId, couponId);
     }
 
     @Test
@@ -134,5 +138,16 @@ class UserCouponControllerTest {
         mockMvc.perform(delete("/admin/user-coupons/1"))
                 .andExpect(status().isNoContent());
         verify(userCouponService).deleteUserCouponsByCoupon(1L);
+    }
+
+    @Test
+    @DisplayName("PUT /admin/user-coupons/revokes/used")
+    void revokeUsedCoupons() throws Exception {
+        mockMvc.perform(put("/admin/user-coupons/revokes/used")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", "u")
+                        .content("[1,2]"))
+                .andExpect(status().isNoContent());
+        verify(userCouponService).revokeUsedCoupons(eq("u"), any());
     }
 }
