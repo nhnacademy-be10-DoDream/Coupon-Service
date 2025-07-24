@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.FatalExceptionStrategy;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,7 +84,54 @@ public class RabbitMQConfig {
                 .with(couponProperties.getParkingRoutingKey());
     }
 
+    @Bean
+    public DirectExchange couponReleaseExchange() {
+        return new DirectExchange(couponProperties.getReleaseExchange(), true, false);
+    }
 
+    @Bean
+    public Queue couponDelayQueue() {
+        return QueueBuilder.durable(couponProperties.getDelayQueue())
+                .withArgument("x-dead-letter-exchange", couponProperties.getReleaseExchange())
+                .withArgument("x-dead-letter-routing-key", couponProperties.getReleaseRoutingKey())
+                .build();
+    }
+
+    @Bean
+    public Queue couponReleaseQueue() {
+        return QueueBuilder.durable(couponProperties.getReleaseQueue()).build();
+    }
+
+    @Bean
+    public Binding couponReleaseBinding(
+            Queue couponReleaseQueue,
+            DirectExchange couponReleaseExchange) {
+        return BindingBuilder
+                .bind(couponReleaseQueue)
+                .to(couponReleaseExchange)
+                .with(couponProperties.getReleaseRoutingKey());
+    }
+
+    @Bean
+    public DirectExchange releaseDlxExchange() {
+        return new DirectExchange(couponProperties.getReleaseDlxExchange(), true, false);
+    }
+
+    @Bean
+    public Queue releaseDlxQueue() {
+        return QueueBuilder.durable(couponProperties.getReleaseDlxQueue())
+                .withArgument("x-dead-letter-exchange", couponProperties.getParkingExchange())
+                .withArgument("x-dead-letter-routing-key", couponProperties.getParkingRoutingKey())
+                .build();
+    }
+
+    @Bean
+    public Binding releaseDlxBinding(Queue releaseDlxQueue,
+                                     DirectExchange releaseDlxExchange) {
+        return BindingBuilder.bind(releaseDlxQueue)
+                .to(releaseDlxExchange)
+                .with(couponProperties.getReleaseDlxRoutingKey());
+    }
 
 
 
@@ -117,4 +166,16 @@ public class RabbitMQConfig {
         return new CustomFatalExceptionStrategy();
     }
 
+
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory cf) {
+        RabbitTemplate tmpl = new RabbitTemplate(cf);
+        tmpl.setMessageConverter(messageConverter());
+        return tmpl;
+    }
 }

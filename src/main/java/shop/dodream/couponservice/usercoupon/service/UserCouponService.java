@@ -1,11 +1,16 @@
 package shop.dodream.couponservice.usercoupon.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import shop.dodream.couponservice.common.CouponStatus;
 import shop.dodream.couponservice.common.ExpiredStrategy;
+import shop.dodream.couponservice.common.properties.CouponRabbitProperties;
 import shop.dodream.couponservice.coupon.entity.Coupon;
 import shop.dodream.couponservice.coupon.repository.CouponRepository;
 import shop.dodream.couponservice.exception.*;
@@ -24,6 +29,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserCouponService {
 
     private final UserCouponRepository userCouponRepository;
@@ -31,6 +37,8 @@ public class UserCouponService {
     private final CouponPolicyRepository couponPolicyRepository;
     private final BookServiceClient bookServiceClient;
     private final UserServiceClient userServiceClient;
+    private final RabbitTemplate rabbitTemplate;
+    private final CouponRabbitProperties properties;
 
     // 유저에 쿠폰 발급
     @Transactional
@@ -144,15 +152,34 @@ public class UserCouponService {
 
     @Transactional
     public void applyCoupons(String userId, List<BookCouponRequest> requests) {
+
         List<Long> userCouponIds = requests.stream()
                 .map(BookCouponRequest::getUserCouponId)
                 .toList();
 
-        int updatedCount = userCouponRepository.applyAllByIds(userCouponIds, userId);
-
-        if (updatedCount != userCouponIds.size()) {
+        int updated = userCouponRepository.applyAllByIds(userCouponIds, userId);
+        if (updated != userCouponIds.size()) {
             throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
         }
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        ReleasePayload payload = new ReleasePayload(userId, userCouponIds);
+                        rabbitTemplate.convertAndSend(
+                                "",
+                                properties.getDelayQueue(),
+                                payload,
+                                msg -> {
+                                    msg.getMessageProperties()
+                                            .setExpiration(String.valueOf(30 * 60 * 1000));
+                                    return msg;
+                                }
+                        );
+                    }
+                }
+        );
     }
 
     @Transactional
@@ -166,9 +193,22 @@ public class UserCouponService {
         userCouponRepository.save(userCoupon);
     }
 
+    @RabbitListener(queues = "${coupon.rabbit.releaseQueue}" , containerFactory = "rabbitListenerContainerFactory")
     @Transactional
-    public void revokeCoupons(String userId, List<Long> userCouponIds) {
-        int revokeCount = userCouponRepository.revokeAllByIds(userCouponIds, userId);
+    public void revokeAppliedCoupons(ReleasePayload payload) {
+        String userId = payload.getUserId();
+        List<Long> userCouponIds = payload.getUserCouponIds();
+        int revokeCount = userCouponRepository.revokeAllAppliedByIds(userCouponIds, userId);
+        if (revokeCount == 0) {
+            log.info("No coupons to revoke for user={} ids={}",userId ,userCouponIds);
+        } else if (revokeCount != userCouponIds.size()) {
+            throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
+        }
+    }
+
+    @Transactional
+    public void revokeUsedCoupons(String userId, List<Long> userCouponIds) {
+        int revokeCount = userCouponRepository.revokeAllUsedByIds(userCouponIds, userId);
         if (revokeCount != userCouponIds.size()) {
             throw new InvalidUserCouponStatusException("InvalidUserCouponStatus");
         }

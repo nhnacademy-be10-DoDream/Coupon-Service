@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UseCouponsRequest {
+public class ReleasePayload {
+    private String userId;
     private List<Long> userCouponIds;
 }
