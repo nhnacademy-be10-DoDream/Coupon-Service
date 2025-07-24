@@ -40,7 +40,7 @@ public class UserCouponController {
         return ResponseEntity.ok(userCouponService.getAvailableCoupons(userId));
     }
 
-    @Operation(summary = "다수의 유저 쿠폰 상태 APPLIED 변경", description = "다수의 유저 쿠폰 상태 APPLIED 변경 API")
+    @Operation(summary = "다수의 유저쿠폰 상태 APPLIED 변경", description = "다수의 유저쿠폰 상태 APPLIED 변경 API")
     @PutMapping("/coupons/me/apply-multiple")
     public ResponseEntity<Void> applyCoupons(
             @CurrentUser String userId,
@@ -60,7 +60,7 @@ public class UserCouponController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "여러 유저 쿠폰 사용 처리", description = "여러 유저 쿠폰 사용 처리 API")
+    @Operation(summary = "여러 유저쿠폰 사용 처리", description = "여러 유저쿠폰 사용 처리 API")
     @PutMapping("/coupons/me/use-multiple")
     public ResponseEntity<Void> useMultipleCoupons(
             @CurrentUser String userId,
@@ -104,11 +104,11 @@ public class UserCouponController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "유저 쿠폰들 상태 활성화", description = "유저 쿠폰들 상태 활성화 API")
-    @PutMapping("/admin/user-coupons/revokes")
+    @Operation(summary = "사용한 유저 쿠폰들 상태 활성화", description = "사용한 유저 쿠폰들 상태 활성화 API")
+    @PutMapping("/admin/user-coupons/revokes/used")
     public ResponseEntity<Void> revokeUserCoupons(@RequestParam String userId,
                                                   @RequestBody List<Long> userCouponIds ) {
-        userCouponService.revokeCoupons(userId, userCouponIds);
+        userCouponService.revokeUsedCoupons(userId, userCouponIds);
         return ResponseEntity.noContent().build();
     }
 }

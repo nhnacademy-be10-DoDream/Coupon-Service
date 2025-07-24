@@ -21,4 +21,14 @@ public class CouponRabbitProperties {
     private String parkingExchange;
     private String parkingQueue;
     private String parkingRoutingKey;
+
+    private String releaseExchange;
+    private String releaseQueue;
+    private String releaseRoutingKey;
+
+    private String releaseDlxExchange;
+    private String releaseDlxQueue;
+    private String releaseDlxRoutingKey;
+
+    private String delayQueue;
 }
