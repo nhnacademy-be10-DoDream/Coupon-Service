@@ -222,6 +222,11 @@ public class UserCouponService {
         if (userId == null) {
             throw new UserNotFoundException("user is null");
         }
+
+        if (userCouponIds == null || userCouponIds.isEmpty()) {
+            return;
+        }
+
         int updatedCount = userCouponRepository.useAllByIds(userCouponIds, userId, ZonedDateTime.now());
 
         if (updatedCount != userCouponIds.size()) {

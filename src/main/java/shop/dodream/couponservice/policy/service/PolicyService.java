@@ -86,7 +86,7 @@ public class PolicyService {
     }
 
     private void validatePurchaseAmount(Long minPurchaseAmount, Long maxDiscountAmount) {
-        if (minPurchaseAmount > maxDiscountAmount) {
+        if (minPurchaseAmount < maxDiscountAmount) {
             throw new ValidationException("minimum discount must be less than maximum discount amount");
         }
     }
